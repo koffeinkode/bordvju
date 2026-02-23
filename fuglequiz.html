@@ -261,6 +261,8 @@
   </div>
 </main>
 
+<canvas id="gås-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:999"></canvas>
+
 <!-- Reset modal -->
 <div class="modal-overlay" id="reset-modal" style="display:none">
   <div class="modal-box">
@@ -625,6 +627,7 @@ function sjekkSvar() {
     state.mestra.add(f.id);
     state.feilKø = state.feilKø.filter(id => id !== f.id);
     state.feedback = { type: 'riktig', fugl: f };
+    feirRiktig();
   } else {
     if (!state.feilKø.includes(f.id)) state.feilKø.push(f.id);
     state.feedback = { type: 'feil', fugl: f };
@@ -663,6 +666,98 @@ function nullstill() {
 
 function visResetModal()  { document.getElementById('reset-modal').style.display = 'flex'; }
 function skjulResetModal(){ document.getElementById('reset-modal').style.display = 'none'; }
+
+// ─── GÅSEKONFETTI ─────────────────────────────────────────────
+function feirRiktig() {
+  const canvas = document.getElementById('gås-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Tegn én gåsesilhuett (klassisk fugl-M sett nedenfra)
+  function tegnGås(ctx, x, y, størrelse, vingevinkel) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.beginPath();
+    // Kropp
+    ctx.ellipse(0, 0, størrelse * 0.6, størrelse * 0.22, 0, 0, Math.PI * 2);
+    // Venstre vinge
+    ctx.moveTo(-størrelse * 0.1, 0);
+    ctx.bezierCurveTo(
+      -størrelse * 0.6, -størrelse * vingevinkel,
+      -størrelse * 1.1, -størrelse * vingevinkel * 0.4,
+      -størrelse * 1.4, størrelse * 0.1
+    );
+    ctx.bezierCurveTo(
+      -størrelse * 1.0, -størrelse * 0.1,
+      -størrelse * 0.5, -størrelse * vingevinkel * 1.1,
+      -størrelse * 0.1, størrelse * 0.1
+    );
+    // Høyre vinge
+    ctx.moveTo(størrelse * 0.1, 0);
+    ctx.bezierCurveTo(
+      størrelse * 0.6, -størrelse * vingevinkel,
+      størrelse * 1.1, -størrelse * vingevinkel * 0.4,
+      størrelse * 1.4, størrelse * 0.1
+    );
+    ctx.bezierCurveTo(
+      størrelse * 1.0, -størrelse * 0.1,
+      størrelse * 0.5, -størrelse * vingevinkel * 1.1,
+      størrelse * 0.1, størrelse * 0.1
+    );
+    ctx.fillStyle = ctx.fillStyle;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  const VARIGHET = 2800;
+  const ANTALL   = 18;
+  const START    = performance.now();
+
+  // Lag gåseflokk i løs V-formasjon
+  const gåser = Array.from({ length: ANTALL }, (_, i) => {
+    const rad    = (i / ANTALL) * Math.PI * 2;
+    const leder  = i === 0;
+    // V-formasjon: leder foran, resten på to armer
+    const arm    = i % 2 === 0 ? 1 : -1;
+    const plass  = Math.floor(i / 2);
+    return {
+      // Start utenfor venstre side, spredt vertikalt
+      x:      -80 - plass * 30 - Math.random() * 40,
+      y:      canvas.height * (0.15 + Math.random() * 0.5) + plass * arm * 45,
+      fart:   3.2 + Math.random() * 1.4 + (leder ? 0.4 : 0),
+      stigning: -0.018 - Math.random() * 0.012,
+      størrelse: leder ? 22 : 14 + Math.random() * 6,
+      vingefase: Math.random() * Math.PI * 2,
+      vingefart: 2.8 + Math.random() * 1.2,
+      farge:  `hsl(${200 + Math.random() * 40}, 35%, ${30 + Math.random() * 20}%)`,
+    };
+  });
+
+  function animér(nå) {
+    const t       = (nå - START) / VARIGHET;
+    const opacity = t < 0.75 ? 1 : 1 - (t - 0.75) / 0.25;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (t >= 1) return;
+
+    for (const g of gåser) {
+      g.x += g.fart;
+      g.y += g.stigning * canvas.height * 0.016;
+
+      const vingevinkel = 0.55 + Math.sin(nå * 0.003 * g.vingefart + g.vingefase) * 0.35;
+
+      ctx.globalAlpha = opacity;
+      ctx.fillStyle   = g.farge;
+      tegnGås(ctx, g.x, g.y, g.størrelse, vingevinkel);
+    }
+
+    requestAnimationFrame(animér);
+  }
+
+  requestAnimationFrame(animér);
+}
 
 
 // ─── INIT ────────────────────────────────────────────────────
