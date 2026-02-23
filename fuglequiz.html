@@ -252,8 +252,8 @@
 
     <div class="knapper">
       <button class="btn btn-primary" onclick="sjekkSvar()">Sjekk svar</button>
-      <button class="btn btn-secondary" onclick="visHint()" title="Hint">💡</button>
-      <button class="btn btn-secondary" onclick="giOpp()">Gi opp</button>
+      <button class="btn btn-secondary" onclick="visHint()" title="Hint">?</button>
+      <button class="btn btn-secondary" onclick="giOpp()">Vet ikke</button>
     </div>
     <button class="btn btn-primary" id="ny-fugl-btn" onclick="nyFugl()" style="display:none;width:100%;margin-top:8px">
       Neste fugl →
@@ -598,7 +598,7 @@ function render() {
 
   const fkEl = document.getElementById('feilkø-tekst');
   if (state.feilKø.length > 0) {
-    fkEl.textContent = state.feilKø.length + ' fugler til repetisjon';
+    fkEl.textContent = state.feilKø.length + (state.feilKø.length === 1 ? ' fugl' : ' fugler') + ' til repetisjon';
     fkEl.style.display = 'block';
   } else {
     fkEl.style.display = 'none';
@@ -664,10 +664,6 @@ function nullstill() {
 function visResetModal()  { document.getElementById('reset-modal').style.display = 'flex'; }
 function skjulResetModal(){ document.getElementById('reset-modal').style.display = 'none'; }
 
-// Enter-tast
-document.getElementById('svar-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') sjekkSvar();
-});
 
 // ─── INIT ────────────────────────────────────────────────────
 state.aktivFugl = velgNeste();
