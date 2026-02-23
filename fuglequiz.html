@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Børdvju – Norsk Fuglequiz</title>
+<title>Pippipp, Gakkgakk &amp; Ørn</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -219,7 +219,7 @@
 <body class="flex">
 
 <aside class="sidebar">
-  <h1>Børdvju</h1>
+  <h1>Pippipp, Gakkgakk & Ørn</h1>
   <p>Norsk fuglequiz</p>
 
   <span class="label-small">Mestret</span>
@@ -229,7 +229,6 @@
   </div>
   <div style="font-size:0.8rem;color:#8A9E7A;margin-top:0.3rem" id="prosent-tekst">0% fullført</div>
 
-  <div class="feilkø-tekst" id="feilkø-tekst" style="display:none"></div>
 
   <hr class="divider">
 
@@ -611,13 +610,6 @@ function render() {
   document.getElementById('progresjon-bar').style.width = pst + '%';
   document.getElementById('prosent-tekst').textContent = pst + '% fullført';
 
-  const fkEl = document.getElementById('feilkø-tekst');
-  if (state.feilKø.length > 0) {
-    fkEl.textContent = state.feilKø.length + (state.feilKø.length === 1 ? ' fugl' : ' fugler') + ' til repetisjon';
-    fkEl.style.display = 'block';
-  } else {
-    fkEl.style.display = 'none';
-  }
 }
 
 // ─── HANDLINGER ──────────────────────────────────────────────
