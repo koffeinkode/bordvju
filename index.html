@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pippipp, Gakkgakk &amp; Ørn</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --parchment: #F2EDE0;
+    --cream: #FEFAF2;
+    --forest: #3A5226;
+    --forest-dark: #2A3B1A;
+    --bark: #2A1F0E;
+    --amber: #C8941A;
+    --sky: #4A7FA5;
+    --success: #2D5C2D;
+    --danger: #7A1C1C;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Lora', Georgia, serif;
+    background-color: var(--parchment);
+    color: var(--bark);
+    min-height: 100vh;
+    margin: 0;
+  }
+  h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
+
+  .sidebar {
+    background: var(--forest);
+    color: #EEE8DA;
+    min-height: 100vh;
+    width: 280px;
+    flex-shrink: 0;
+    padding: 2rem 1.5rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-bunn {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-size: 0.75rem;
+    color: rgba(238,232,218,0.4);
+    line-height: 1.6;
+  }
+  .sidebar-bunn a {
+    color: rgba(238,232,218,0.5);
+    text-decoration: none;
+  }
+  .sidebar-bunn a:hover { color: rgba(238,232,218,0.8); }
+  .sidebar h1 { color: #F5EED8; font-size: 2rem; margin: 0 0 0.25rem; }
+  .sidebar p  { color: #B8C9A8; font-size: 0.85rem; margin: 0 0 2rem; font-style: italic; }
+
+  .progress-bar-bg {
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    height: 10px;
+    overflow: hidden;
+    margin: 0.4rem 0;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: #8BBF72;
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+
+  .quiz-area { flex: 1; padding: 2rem; max-width: 720px; }
+
+  .card {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 16px rgba(42,31,14,0.08);
+    border: 1px solid rgba(42,31,14,0.08);
+  }
+
+  .beskrivelse {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #3A2C18;
+    margin-bottom: 1.5rem;
+    min-height: 5rem;
+  }
+
+  .hint-boks {
+    background: #E8F2F9;
+    border-left: 3px solid var(--sky);
+    color: #2C5270;
+    padding: 0.6rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 1rem;
+    font-style: italic;
+    font-size: 0.95rem;
+  }
+
+  .feedback-riktig {
+    background: #EAF4EA;
+    border-left: 3px solid var(--success);
+    color: var(--success);
+    padding: 0.75rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 1rem;
+  }
+  .feedback-feil {
+    background: #F9EAEA;
+    border-left: 3px solid var(--danger);
+    color: var(--danger);
+    padding: 0.75rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 1rem;
+  }
+  .feedback-latin { font-style: italic; font-size: 0.9em; opacity: 0.85; display: block; margin-top: 0.2rem; }
+
+  .svar-input {
+    width: 100%;
+    font-family: 'Lora', serif;
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid #C8BFA8;
+    border-radius: 8px;
+    background: white;
+    color: var(--bark);
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 1rem;
+  }
+  .svar-input:focus { border-color: var(--forest); }
+  .svar-input:disabled { opacity: 0.5; cursor: not-allowed; background: #F5EED8; }
+
+  .knapper {
+    display: grid;
+    grid-template-columns: 1fr 52px 1fr;
+    gap: 8px;
+  }
+
+  .btn {
+    font-family: 'Lora', serif;
+    font-size: 0.95rem;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-primary {
+    background: var(--forest);
+    color: #F5EED8;
+  }
+  .btn-primary:hover { background: var(--forest-dark); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--forest);
+    border: 2px solid var(--forest);
+  }
+  .btn-secondary:hover { background: rgba(58,82,38,0.08); }
+  .btn-danger {
+    background: transparent;
+    color: rgba(238,232,218,0.55);
+    border: 1px solid rgba(238,232,218,0.25);
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .btn-danger:hover {
+    color: #EEE8DA;
+    border-color: rgba(238,232,218,0.6);
+    background: rgba(255,255,255,0.08);
+  }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 1rem;
+  }
+  .modal-box {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 380px; width: 100%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+  .modal-box h2 { margin: 0 0 0.75rem; font-size: 1.4rem; }
+  .modal-box p  { margin: 0 0 1.5rem; color: #5A4A30; }
+
+  .label-small {
+    font-size: 0.78rem;
+    color: #8A9E7A;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #E8D8A0;
+    line-height: 1;
+  }
+  .feilkø-tekst {
+    font-size: 0.82rem;
+    color: #D4A96A;
+    margin-top: 0.75rem;
+    font-style: italic;
+  }
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0; }
+
+  @media (max-width: 768px) {
+    body { flex-direction: column !important; }
+    .sidebar {
+      width: 100%; min-height: auto; height: auto;
+      position: static;
+      order: 2;
+      padding: 1.5rem;
+    }
+    .quiz-area { order: 1; padding: 1rem; max-width: 100%; }
+    .sidebar h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body class="flex">
+
+<aside class="sidebar">
+  <h1>Pippipp,<br>Gakkgakk<br><nobr>& Ørn</nobr></h1>
+  <p>Norsk fuglequiz</p>
+
+  <span class="label-small">Mestret</span>
+  <div class="stat-value" id="progresjon-tekst">0 / 231</div>
+  <div class="progress-bar-bg" style="margin-top:0.6rem">
+    <div class="progress-bar-fill" id="progresjon-bar" style="width:0%"></div>
+  </div>
+  <div style="font-size:0.8rem;color:#8A9E7A;margin-top:0.3rem" id="prosent-tekst">0% fullført</div>
+
+
+  <hr class="divider">
+
+  <button class="btn btn-danger" onclick="visResetModal()">Nullstill fremgang</button>
+
+  <div class="sidebar-bunn">
+    Hallvar Bugge Johnsen<br>
+    <a href="mailto:hei@hallvar.no">hei@hallvar.no</a> · <a href="https://www.hallvar.no" target="_blank" rel="noopener">hallvar.no</a>
+  </div>
+</aside>
+
+<main class="quiz-area">
+  <div class="card">
+    <div class="beskrivelse" id="beskrivelse">Laster...</div>
+
+    <div id="hint-omrade" style="display:none" class="hint-boks"></div>
+    <div id="feedback-omrade" style="display:none"></div>
+
+    <input
+      class="svar-input"
+      id="svar-input"
+      type="text"
+      placeholder="Skriv fuglenavnet her..."
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+    >
+
+    <div class="knapper">
+      <button class="btn btn-primary" onclick="sjekkSvar()">Sjekk svar</button>
+      <button class="btn btn-secondary" id="hint-btn" onclick="visHint()">Hint</button>
+      <button class="btn btn-secondary" onclick="giOpp()">Vet ikke</button>
+    </div>
+    <button class="btn btn-primary" id="ny-fugl-btn" onclick="nyFugl()" style="display:none;width:100%;margin-top:8px">
+      Neste fugl →
+    </button>
+  </div>
+</main>
+
+<canvas id="gås-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:999;top:0;left:0;width:100%;height:100%"></canvas>
+
+<!-- Reset modal -->
+<div class="modal-overlay" id="reset-modal" style="display:none">
+  <div class="modal-box">
+    <h2>Nullstill fremgang?</h2>
+    <p>All fremgang slettes permanent. Dette kan ikke angres.</p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="nullstill()">Ja, nullstill</button>
+      <button class="btn btn-secondary" onclick="skjulResetModal()">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── FUGLEDATA ───────────────────────────────────────────────
+const FUGLER = [
+  {id:1,navn:`Gråhegre`,latin:`Ardea cinerea`,beskrivelse:`Norges høyeste vadefugl med grå fjærdrakt, hvit hals og svart øyestribe. Flyr med nakken trukket i S-form og bena strakt ut bak. Jakter langs elvebredder ved å stå urørlig og vente på fisk og frosk.`},
+  {id:2,navn:`Knoppsvane`,latin:`Cygnus olor`,beskrivelse:`Stor hvit svane med oransjerød nebb og sort knoll ved nebbbasen. Holder halsen i en elegant S-kurve og reiser vingene truende ved fare. Hekker ved innsjøer og bekker i lavereliggende strøk.`},
+  {id:3,navn:`Sangsvane`,latin:`Cygnus cygnus`,beskrivelse:`Stor hvit svane uten nebbknoll, med gult og sort nebb. Kaller med trompeterende, buglende lyder som hørtes på lang avstand. Hekker ved fiskerike innsjøer og myrområder i nord.`},
+  {id:4,navn:`Kortnebbgås`,latin:`Anser brachyrhynchus`,beskrivelse:`Grå gjess med rosafarget nebb og rosa bein, kortere og rundere hode enn grågåsa. Hekker på Svalbard og trekker i store flokker over fastlandet om høsten. Beiter på åkrer og grasmarker.`},
+  {id:5,navn:`Grågås`,latin:`Anser anser`,beskrivelse:`Norges vanligste villgås med grått fjærdrakt og oransje nebb. Forfaren til de fleste tamgåserasene og en sterk, støyende flyger. Hekker ved kystmyrer og innsjøer.`},
+  {id:6,navn:`Kanadagås`,latin:`Branta canadensis`,beskrivelse:`Stor gjess med karakteristisk svart hals og hvit kinnlapp. Introdusert art som nå hekker i store deler av Norge. Kjennes på det dype, hese «a-honk» kallet.`},
+  {id:7,navn:`Gravand`,latin:`Tadorna tadorna`,beskrivelse:`Stor, gåselik and med hvit grunnfarge, kastanjebrun brystbånd og grønnsvart hode. Hannen har en rød nebbknoll. Hekker i kaninhull og reveganger langs kysten.`},
+  {id:8,navn:`Brunnakke`,latin:`Mareca penelope`,beskrivelse:`Hannens rustrøde hode med kremgul isse er et sikkert kjennetegn. Beiter på grasmarker nær vann og lager et karakteristisk, hvinende fløyterop. Hekker ved innsjøer og myrer i nord.`},
+  {id:9,navn:`Stokkand`,latin:`Anas platyrhynchos`,beskrivelse:`Norges vanligste and med hannens skinnende grønne hode og hvit halsring. Holder til ved nær sagt alle typer ferskvann og er stamfaren til tamanda. Hunnen er brunmotlet med blå vingespeil.`},
+  {id:10,navn:`Krikkand`,latin:`Anas crecca`,beskrivelse:`Nordens minste and med hannens kastanjebrune og grønne hodemønster. Svært rask og manøvrerbar i luften. Hekker ved myrer og småvann i skoglandskapet.`},
+  {id:11,navn:`Stjertand`,latin:`Anas acuta`,beskrivelse:`Slank and med hannens lange, spisse stjertfjær og grå-hvit kropp med brun hode. En av de meste elegante norske andene. Hekker ved grunne innsjøer og myrer.`},
+  {id:12,navn:`Skjeand`,latin:`Spatula clypeata`,beskrivelse:`Lett gjenkjennelig på det svære, skjeformede nebbet. Hannen har grønt hode, hvit bryst og kastanjebrune sider. Filtrerer vann etter plankton og småkryp i grunne dammer.`},
+  {id:13,navn:`Toppand`,latin:`Aythya fuligula`,beskrivelse:`Hannens svart-hvite fjærdrakt og den hengende nakketop er karakteristisk. Dykker etter muslinger og småkryp på bunnen av innsjøer. En av de vanligste dykkendene i Norge.`},
+  {id:14,navn:`Bergand`,latin:`Aythya marila`,beskrivelse:`Ligner toppand, men mangler nakketop og hannens hode glir i grønnglans. Hekker ved arktiske innsjøer og tundramyrer. Overvintrer i store flokker langs kysten.`},
+  {id:15,navn:`Ærfugl`,latin:`Somateria mollissima`,beskrivelse:`Norges tyngste and med hannens skarpe svart-hvite drakt og grønnfarget nakke. Hunnen er diskret brunmotlet. Kjent for det mye brukte dundynet fra redet. Hekker langs steinete kystlinjer.`},
+  {id:16,navn:`Sjøorre`,latin:`Melanitta fusca`,beskrivelse:`Stor, mørk dykkand. Hannen er helsvart med hvit øyelapp og hvit vingespeil. Hekker ved skogkledde innsjøer og overvintrer langs kysten i store flokker.`},
+  {id:17,navn:`Svartand`,latin:`Melanitta nigra`,beskrivelse:`Hannens helsvarte fjærdrakt med gul-oransje nebbknoll er et sikkert kjennetegn. Hunnen er mørkbrun med lys kinn. Hekker ved innsjøer i nord og overvintrer til havs.`},
+  {id:18,navn:`Havelle`,latin:`Clangula hyemalis`,beskrivelse:`En av de mest fargerike dykkendene med hannens lange, spisse hale og skiftende vinter- og sommerdrakt. Lager et klukkende, melodiøst kall hørt langt vekk. Hekker på arktisk tundra og langs fjellelver.`},
+  {id:19,navn:`Kvinand`,latin:`Bucephala clangula`,beskrivelse:`Hannens runde grønnskinnende hode med hvit kinnflekk er karakteristisk. Vingene lager en karakteristisk klingende lyd i flukt. Hekker i fuglekasser og naturlige hullrom ved innsjøer.`},
+  {id:20,navn:`Laksand`,latin:`Mergus merganser`,beskrivelse:`Stor, strømlinjeformet and med sagtannet rødt nebb for å holde fast i fisk. Hannen har grønt hode og hvit kropp, hunnen med rustbrun hode og grå kropp. Hekker i trehull langs elver.`},
+  {id:21,navn:`Siland`,latin:`Mergus serrator`,beskrivelse:`Ligner laksand men er slankere med mer rufsete nakketop. Hannens bryst har fin svart-hvit flekking. Hekker langs kysten og ved innsjøer, ofte ute på sjøen om vinteren.`},
+  {id:22,navn:`Jerpe`,latin:`Tetrastes bonasia`,beskrivelse:`Liten, tilbakeholden skogshøne med fint brunt-grå-hvit stripemønster. Hannen har svart strupeflekk. Lever i tett granskog og er sjelden å se, men kjennes på den fine, pipelignende fløytesangen.`},
+  {id:23,navn:`Lirype`,latin:`Lagopus lagopus`,beskrivelse:`Skifter fjærdrakt fra brun om sommeren til helkvit om vinteren, bortsett fra svarte stjertfjær. Lever på hei og myr over skoggrensen. Kaller med kakkelende, knurrende lyder.`},
+  {id:24,navn:`Fjellrype`,latin:`Lagopus muta`,beskrivelse:`Lik lirype men lever høyere til fjells og er mer kompakt. Hannen har svart tøyle om sommeren. Helkvit om vinteren, vanskelig å se mot snøen.`},
+  {id:25,navn:`Orrfugl`,latin:`Lyrurus tetrix`,beskrivelse:`Hannens blåsvarte drakt med lyrformede stjertfjær og røde øyeroser er uforvekselbar. Hunnen er diskret brun med svak tvärbarring. Hekker i kantsoner mellom skog og myr.`},
+  {id:26,navn:`Storfugl`,latin:`Tetrao urogallus`,beskrivelse:`Norges største skogsfugl med hannens praktfulle svart-grønne drakt og rød øyerose. Hunnen er brun med oransje bryst. Hannens ballelek i april er et naturspektakel.`},
+  {id:27,navn:`Vaktel`,latin:`Coturnix coturnix`,beskrivelse:`Nordens minste hønsefugl, så liten at den gjerne overses. Hekker i kornåkrer og kulturlandskap på Østlandet. Kjennes best på hannens friske, trelydige «smør-og-brød»-sang.`},
+  {id:28,navn:`Smålom`,latin:`Gavia stellata`,beskrivelse:`Minste lomfugl med karakteristisk rustbrun strupeflekk i sommerdrakt. Hekker ved fjelltjern og innsjøer og flyr til havs for å overvintre. Kaller med ugjennomtrengelige, melankolske hyl.`},
+  {id:29,navn:`Storlom`,latin:`Gavia arctica`,beskrivelse:`Størst av de lomene som regelmessig hekker i Norge, med gråsvart hode og halsring av hvite prikker. Hekker ved store, klare innsjøer. Dykker etter fisk og kan gå dypt.`},
+  {id:30,navn:`Islom`,latin:`Gavia immer`,beskrivelse:`Den største lomfuglen med kraftig svart nebb og sjakkbrettmønster på ryggen om sommeren. Overvintrer langs norskekysten. Kallen er det ikoniske ulvehylet fra nordamerikanske innsjøer.`},
+  {id:31,navn:`Dvergdykker`,latin:`Tachybaptus ruficollis`,beskrivelse:`Nordens minste dykker med en nesten haleløs, lubben kropp. Rust hals og gul nebbkile om sommeren. Lever i vegetasjonsrike dammer og smådammer.`},
+  {id:32,navn:`Horndykker`,latin:`Podiceps auritus`,beskrivelse:`Sommerdrakten med gylne ørefjær mot sort hode og rustbrun hals er vakker. Hekker ved vegetasjonsrike innsjøer i nord. Dykker etter fisk og insekter.`},
+  {id:33,navn:`Gråstrupedykker`,latin:`Podiceps grisegena`,beskrivelse:`Mellomstore dykker med grå kinn, hvit hals og rødt øye. Hekker ved innsjøer med rik kantvegetasjon. Kallet er et høyt, hestegallopperende vrinskelyd.`},
+  {id:34,navn:`Toppdykker`,latin:`Podiceps cristatus`,beskrivelse:`Nordens største dykker med karakteristisk dobbelt hodepynt og rustbrun krageflikk i sommerdrakten. Utfører imponerende paringsseremonier. Hekker ved store innsjøer.`},
+  {id:35,navn:`Stormsvale`,latin:`Hydrobates pelagicus`,beskrivelse:`Nordens minste sjøfugl med helt mørkt fjærdrakt og hvit overgumsflekk. Flagrer mølleaktig over havflaten og plukker mat fra overflaten. Hekker i sprekker og steinurer på øyer.`},
+  {id:36,navn:`Havsvale`,latin:`Hydrobates leucorhous`,beskrivelse:`Ligner stormsvale men er litt større og har hvit overgumsflekk med mørk midtstribe. Flyr mer svevende enn stormsvalen. Hekker i kolonier på ytre kystøyer.`},
+  {id:37,navn:`Havsule`,latin:`Morus bassanus`,beskrivelse:`Nordens største sjøfugl med hvit kropp og gule hode, svarte vingespisse. Dykker fra stor høyde for å fange fisk. Hekker i store kolonier på fjellhyller.`},
+  {id:38,navn:`Storskarv`,latin:`Phalacrocorax carbo`,beskrivelse:`Stor, mørk sjøfugl som ofte sitter med vingene utbredt for å tørke dem. Svømmer dypt og fanger fisk. Hekker i kolonier i klipper og trær langs kysten.`},
+  {id:39,navn:`Toppskarv`,latin:`Gulosus aristotelis`,beskrivelse:`Ligner storskarv men er slankere med grønnglinsende fjærdrakt og oppsatt hodekam om våren. Mer knyttet til åpen havkyst enn storskarven. Dykker etter bunnfisk.`},
+  {id:40,navn:`Havhest`,latin:`Fulmarus glacialis`,beskrivelse:`Måkelignende havfugl som svever på stive vinger langs bølgetopper. Spyr en illeluktende olje på angripere. Hekker på fuglefjell langs kysten og på Svalbard.`},
+  {id:41,navn:`Vepsevåk`,latin:`Pernis apivorus`,beskrivelse:`En av de mer uvanlige rovfuglene som spesialiserer seg på å grave opp vepsebol. Har smal hode og lysegule øyne. Sommergjest som hekker i eldre løvskog.`},
+  {id:42,navn:`Sivhauk`,latin:`Circus aeruginosus`,beskrivelse:`Norges eneste hekkende hauk knyttet til store rørskoger. Hannen er vakkert farget med gråbrune og grå tonet fjær, hunnen mer ensfarget brun med kremgul isse. Flyr lavt over sivmyrene.`},
+  {id:43,navn:`Myrhauk`,latin:`Circus cyaneus`,beskrivelse:`Hannen er lys blågrå med svarte vingespisse og hvit gump, hunnen er brunstribet. Flyr lavt over åpen myr og hei på jakt etter smågnagere. Sjelden hekkefugl i Norge.`},
+  {id:44,navn:`Spurvehauk`,latin:`Accipiter nisus`,beskrivelse:`Liten, hurtig skogshauk som overrasker småfugl med raske angrep. Hannens blågrå rygg og oransjestribet bryst er karakteristisk. Flyr lavt i kantsoner.`},
+  {id:45,navn:`Hønsehauk`,latin:`Accipiter gentilis`,beskrivelse:`Stor, kraftig skogshauk med grå rygg og tett hvit stribet underside. Kan ta fugl opp til størrelse som kråke og orrfugl. Angriper med eksplosiv hurtighet i tett skog.`},
+  {id:46,navn:`Musvåk`,latin:`Buteo buteo`,beskrivelse:`Norges vanligste rovfugl med bred vingespenn og variert brunfarget fjærdrakt. Sitter ofte i toppen av trær og speider etter mus og mark. Lager et klagende «miaaaau»-rop.`},
+  {id:47,navn:`Fjellvåk`,latin:`Buteo lagopus`,beskrivelse:`Lik musvåk men hvitere og med svart mageflekk. Svever med oppstrakte vinger over åpen tundra og fjellhei på jakt etter lemen. Overvintrer i lavlandet.`},
+  {id:48,navn:`Kongeørn`,latin:`Aquila chrysaetos`,beskrivelse:`Norges mektigste rovfugl med et vingespenn på over to meter. Det gylne nakkepartiet gir arten sitt navn. Hekker i fjellet og jakter over åpne vidder.`},
+  {id:49,navn:`Havørn`,latin:`Haliaeetus albicilla`,beskrivelse:`Verdens fjerde største ørn med karakteristiske korte, kileformede hvite hale. Kjøkkenbenklignende krummet nebb og enorme plankevinger. Hekker langs kyster og store innsjøer.`},
+  {id:50,navn:`Fiskeørn`,latin:`Pandion haliaetus`,beskrivelse:`En spesialist på fiskejakt som styrter bensene fremfor ned i vannet og griper fisk med spesielle gripeputene på tærne. Hvit undersidde med mørkt brystbånd. Hekker ved fiskerike vann.`},
+  {id:51,navn:`Tårnfalk`,latin:`Falco tinnunculus`,beskrivelse:`Kjennes lett på den karakteristiske svevingen med vibrerende vinger mens den speider etter mus og insekter nede. Hannens blågrå hode og brun rygg er karakteristisk. Vanlig langs veikanter.`},
+  {id:52,navn:`Dvergfalk`,latin:`Falco columbarius`,beskrivelse:`Liten, rask falk med kompakt kropp. Hannens blågrå rygg og stribet underside. Jakter over åpen myr og hei etter småfugl. Hekker i lavereliggende fjellstrøk.`},
+  {id:53,navn:`Lerkefalk`,latin:`Falco subbuteo`,beskrivelse:`Smidig, langvinget falk som jakter på svaler og lerker i luften med elegante manøvrer. Hannens mørke overdel og rustbrune bukpartiet er kjennetegn. Sommergjest i lavlandet.`},
+  {id:54,navn:`Jaktfalk`,latin:`Falco rusticolus`,beskrivelse:`Nordens største falk, stor og kraftig med varierende fargedrakt fra hvit til mørk. Kongen blant falker som i middelalderen var forbeholdt konger. Hekker på fjellhyller i nord og på Svalbard.`},
+  {id:55,navn:`Vandrefalk`,latin:`Falco peregrinus`,beskrivelse:`Verdens raskeste dyr i styrtdykk, med dokumenterte hastigheter over 300 km/t. Mørk hette og hvite kinn er typisk. Hekker på fjellhyller og i byer på høye bygg.`},
+  {id:56,navn:`Vannrikse`,latin:`Rallus aquaticus`,beskrivelse:`Tilbakeholden sivbeboer som høres langt mer enn den sees. Det karakteristiske skrikelyde ligner en gris som kneler. Har langt, rødt nebb og grå undersidde med brun rygg.`},
+  {id:57,navn:`Myrrikse`,latin:`Porzana porzana`,beskrivelse:`Liten, sky rikkse med brunmotlet fjærdrakt og hvite prikker. Kaller om natten med en karakteristisk piskende lyd. Hekker i dype starrmyrer og sumpvegetasjon.`},
+  {id:58,navn:`Åkerrikse`,latin:`Crex crex`,beskrivelse:`Hørbar men nesten usett. Hannens monotone dobbeltrop «crex-crex» kan høres kilometervis unna. Hekker i slåtteenger og kornåkrer, og er blitt sjeldnere etter intensivering av jordbruket.`},
+  {id:59,navn:`Sivhøne`,latin:`Gallinula chloropus`,beskrivelse:`Svømmende hønsefugl med svart kropp, rød nebbskjold og gul nebbspiss. Nikker karakteristisk med hodet mens den svømmer. Vanlig ved dammer og kanaler med tett vegetasjon.`},
+  {id:60,navn:`Sothøne`,latin:`Fulica atra`,beskrivelse:`Helsvart med iøynefallende hvit panne og nebb. Stor fotflate gjør den til en god svømmer. Hekker ved innsjøer og dammer og er aggressiv i forsvar av territoriet.`},
+  {id:61,navn:`Trane`,latin:`Grus grus`,beskrivelse:`Stor, grå vadefugl med rød hodekrone og svart-hvit hodetegning. Kan leve i over 40 år. Hannens trumpeterende rop under vårens paringsatferd er uforglemmeleg.`},
+  {id:62,navn:`Tjeld`,latin:`Haematopus ostralegus`,beskrivelse:`Svart-hvit kystvader med langt, knallrødt nebb. Karakteristisk piping kall. Hekker langs kysten og er et velkjent innslag i det norske kystlandskapet.`},
+  {id:63,navn:`Dverglo`,latin:`Charadrius dubius`,beskrivelse:`Liten lo med komplett brystbånd og gul øyering. Hekker på grusbanker langs elver og innsjøer. Lager et fint, pipelignende kall.`},
+  {id:64,navn:`Sandlo`,latin:`Charadrius hiaticula`,beskrivelse:`Liten lo med oransjegul nebbbase og tydelig sort og hvit tegning på hodet. Hekker langs strandkanter og elvegrus. Kaller med et melodisk fløyterende «too-it».`},
+  {id:65,navn:`Boltit`,latin:`Eudromias morinellus`,beskrivelse:`Rolig fjellvader med rustbrun buk og hvit brystbånd. Karakteristisk ved at hunnen har sterkere farger enn hannen. Hekker på åpne fjellvidder.`},
+  {id:66,navn:`Heilo`,latin:`Pluvialis apricaria`,beskrivelse:`Gyllenspettet rygg og sort buk i sommerdrakt er karakteristisk. Hekker på fjellhei og myr. Kallet – et lengtende, fløytende pip – er et av fjellhøstens stemningsskapende lyder.`},
+  {id:67,navn:`Tundralo`,latin:`Pluvialis squatarola`,beskrivelse:`Lik heilo men grå der heilo er gulflekket. Kjennes på stor svart aksillflekkk og svart buk om sommeren. Overvintrer langs kysten og stopper til på trekk.`},
+  {id:68,navn:`Vipe`,latin:`Vanellus vanellus`,beskrivelse:`Svart og hvit med metallisk grønn rygg og lang, tynn fjærtopp. Akrobatisk flukt og klynkende «ki-vitt»-rop gjør den uforvekselbar. Hekker i åpent kulturlandskap.`},
+  {id:69,navn:`Polarsnipe`,latin:`Calidris canutus`,beskrivelse:`Robust, kortbeint snipe med rustbrun undersidde om sommeren. Overvintrer i internasjonale flokker langs europeiske kyster. Trekker mellom Arktis og Afrika.`},
+  {id:70,navn:`Sandløper`,latin:`Calidris alba`,beskrivelse:`Gråhvit med svart skulderflekk. Løper i takt med bølgene langs sandstrender for å snappe opp invertebrater. Sjelden hekkefugl på Svalbard.`},
+  {id:71,navn:`Dvergsnipe`,latin:`Calidris minuta`,beskrivelse:`En av de minste vaderne med rustfarget sommerdrakt og V-formet tegning på ryggen. Trekker gjennom norske kyster om høsten. Hekker i arktisk tundra.`},
+  {id:72,navn:`Temmincksnipe`,latin:`Calidris temminckii`,beskrivelse:`Liten snipe med ensfarget grå-brun rygg uten tydelig V-mønster. Hekker ved fjellelver og myrer. Har en karakteristisk skjelevende «tirr»-lyd.`},
+  {id:73,navn:`Fjæreplytt`,latin:`Calidris maritima`,beskrivelse:`Kompakt, mørk snipe med rustrøde flekker og gul nebbbase. Lever langs steinete kyststrender om vinteren. Hekker på Svalbard og er den vanligste vintersnipa langs norske kyster.`},
+  {id:74,navn:`Tundrasnipe`,latin:`Calidris ferruginea`,beskrivelse:`Lik myrsnipe men mer slank med bøyd nebb og helrød undersidde i sommerdrakt. Trekker gjennom Norge fra sibirsk tundra til Afrika. Hvit gump er et godt kjennetegn.`},
+  {id:75,navn:`Brushane`,latin:`Calidris pugnax`,beskrivelse:`Hannens krage og hodepynt under balleleken er unik i fugleverden, ingen to hanner er like. Hunnen er liten og anonym. Hekker på myr og sumpmark i nord.`},
+  {id:76,navn:`Kvartbekkasin`,latin:`Lymnocryptes minimus`,beskrivelse:`Nordens minste bekkasin, diskret og vanskelig å se. Kallet om vinteren ligner et ryttere i galopp. Hekker på sumpete myrer og overvintrer i sørlige strøk.`},
+  {id:77,navn:`Enkeltbekkasin`,latin:`Gallinago gallinago`,beskrivelse:`Langnebbet med karakteristisk stripet hode. Hannen utfører brautende flukt under paring der stjertfjærene vibrerer og lager den kjente «bleatingen». Hekker på myrer og sumpmarker.`},
+  {id:78,navn:`Dobbeltbekkasin`,latin:`Gallinago media`,beskrivelse:`Stor, tung bekkasin med tydelig stripet hode og jevnt flettet ryggmønster. Hannen danser i lek med andre hanner på arenaer. Sjelden hekkefugl i Norge.`},
+  {id:79,navn:`Rugde`,latin:`Scolopax rusticola`,beskrivelse:`Stor, tykk skogsvader med transversal head-barring. Hannens langtrukne kurrende «ort-ort-ort-tswick» i skumringen er uforglemmelig. Lever i fuktig løvskog og hekker på bakken.`},
+  {id:80,navn:`Lappspove`,latin:`Limosa lapponica`,beskrivelse:`Stor vader med langt oppbøyd nebb og rødbrun undersidde i sommerdrakt. Hekker på arktisk tundra og trekker til Afrika – en av fuglenes lengste trekkruter. Hvit kileformet gump.`},
+  {id:81,navn:`Svarthalespove`,latin:`Limosa limosa`,beskrivelse:`Stor vader med rett, langt nebb og svart-hvit hale. Oransjebrun hode og hals om sommeren. Sjelden hekkefugl i norske kulturlandskap.`},
+  {id:82,navn:`Småspove`,latin:`Numenius phaeopus`,beskrivelse:`Klart kileformet stripet hode og bøyd nebb. Kallet – en bobling, trillende fløyte – er et av vårens beste varsler. Hekker på myr og fjellhei.`},
+  {id:83,navn:`Storspove`,latin:`Numenius arquata`,beskrivelse:`Norges største vader med langt, kraftig nedoverbuet nebb. Trist, fløytende «cur-lee»-rop over åpne kystlandskaper. Hekker på myr og hei.`},
+  {id:84,navn:`Sotsnipe`,latin:`Tringa erythropus`,beskrivelse:`Hekker på arktisk tundra. Sommerdrakt er helsvart med hvit gump. I vinterdrakten grå og hvit. Langt, rødt nebb med svart spiss er et godt kjennetegn.`},
+  {id:85,navn:`Rødstilk`,latin:`Tringa totanus`,beskrivelse:`Oransjerød nebbbase og ben er de umiddelbare kjennetegn. Kaller høylytt og nervøst når man nærmer seg redet. Hekker på myr, strandeng og fjellhei.`},
+  {id:86,navn:`Gluttsnipe`,latin:`Tringa nebularia`,beskrivelse:`Stor, lysegrå snipe med langt, svakt oppbøyd nebb og grønne bein. Kaller med tre tydelige fløytelyder. Hekker i våt boreal skog og myr.`},
+  {id:87,navn:`Grønnstilk`,latin:`Tringa glareola`,beskrivelse:`Brunspettet rygg og hvit gump er gode kjennetegn. Kaller med et triplet fløytelyd. Hekker ved myrtjern og innsjøer i skog.`},
+  {id:88,navn:`Skogsnipe`,latin:`Tringa ochropus`,beskrivelse:`Mørk, bronsefarget rygg med hvit gump. Bobber hodet karakteristisk. Hekker sjelden i Norge men er en vanlig trekkfugl. Hekker i trær ved vann.`},
+  {id:89,navn:`Strandsnipe`,latin:`Actitis hypoleucos`,beskrivelse:`Liten brungrå snipe som vipper kroppen opp og ned hele tiden. Hvit brystkile synlig ved landgang. Hekker langs elvebredder og strandkanter.`},
+  {id:90,navn:`Steinvender`,latin:`Arenaria interpres`,beskrivelse:`Flerfarge med oransje bein og sort-hvit-rustrødt mønster. Bruker nebbet til å snu steiner for å finne mat under. Hekker på Svalbard og trekker langs kysten.`},
+  {id:91,navn:`Svømmesnipe`,latin:`Phalaropus lobatus`,beskrivelse:`Liten vader som svømmer på havoverflaten og spinner rundt for å skape oppstrøm. Hunnen er mye penere farget enn hannen. Hekker på myrflater i nord.`},
+  {id:92,navn:`Polarsvømmesnipe`,latin:`Phalaropus fulicarius`,beskrivelse:`Ligner svømmesnipe men mer robust og grå. Tilbringer mesteparten av livet ute på havet. Sjelden gjest langs norske kyster, hekker på Svalbard.`},
+  {id:93,navn:`Polarjo`,latin:`Stercorarius pomarinus`,beskrivelse:`Stor, kraftig jo med karakteristiske kileformede midtstjertfjær. Kleptoparasitterer på måker. Hekker på lemenmyrer i arktisk tundra.`},
+  {id:94,navn:`Tyvjo`,latin:`Stercorarius parasiticus`,beskrivelse:`Norges vanligste jo, slank med varierende fargedrakt. Jager og bestjeler andre sjøfugler for mat. Hekker på norsk fjellhei og kyst.`},
+  {id:95,navn:`Fjelljo`,latin:`Stercorarius longicaudus`,beskrivelse:`Slank og elegant jo med svært lange midtstjertfjær og lys undersidde. Den minste og mest grasiøse joen. Hekker på tundra avhengig av lemenår.`},
+  {id:96,navn:`Storjo`,latin:`Stercorarius skua`,beskrivelse:`Stor, tung brun rovfugl som angriper og bestjeler selv havsule. Hvit vingeflekk synlig i flukt. Hekker på norske kystfjell og øyer.`},
+  {id:97,navn:`Dvergmåke`,latin:`Hydrocoloeus minutus`,beskrivelse:`Verdens minste måke med mørk underside på vingebakken hos eldre fugler. Hekker øst i Europa men ses jevnlig under trekk langs norske kyster.`},
+  {id:98,navn:`Hettemåke`,latin:`Chroicocephalus ridibundus`,beskrivelse:`Den vanligste av de «svarthodede» måkene med sjokoladebrun hette og rødt nebb. Hekker i kolonier ved innsjøer og kystmyrer. Kaller høyt og støyende.`},
+  {id:99,navn:`Fiskemåke`,latin:`Larus canus`,beskrivelse:`Middels stor måke med lysegrå rygg, hvit hode og grønt-gult nebb uten rød flekk. Den vanligste innlandsmåken som også hekker ved kysten.`},
+  {id:100,navn:`Stormmåke`,latin:`Larus hyperboreus`,beskrivelse:`Stor, bleik måke uten sort på vingespissene. Hekker i Arktis og besøker norske kyster om vinteren. Kjennes på de isfargede, lyse vingtuppene.`},
+  {id:101,navn:`Sildemåke`,latin:`Larus fuscus`,beskrivelse:`Mørk rygg og vinger skiller den fra gråmåka. Trekker langt sørover om vinteren. Hekker i kolonier langs norske kyster.`},
+  {id:102,navn:`Gråmåke`,latin:`Larus argentatus`,beskrivelse:`Norges vanligste stormåke med grå mantel, rosa bein og gult nebb med rød flekk. Altetende og svært tilpasningsdyktig. Hekker langs hele kysten.`},
+  {id:103,navn:`Svartbak`,latin:`Larus marinus`,beskrivelse:`Nordens største måke med svart mantel og rosa bein. Dominant predator som tar sjøfuglunger og egg. Hekker spredt langs norske klippkyster.`},
+  {id:104,navn:`Krykkje`,latin:`Rissa tridactyla`,beskrivelse:`Elegant havmåke med svarte vingetuppar uten hvit prikk og gule nebb. Hekker i store, støyende kolonier på bratte fjellvegger. Kaller høyt «kitti-weik».`},
+  {id:105,navn:`Splitterne`,latin:`Thalasseus sandvicensis`,beskrivelse:`Stor, hvit sjøterne med kresen sort og hvit hode og langt svart nebb med gul spiss. Dykker etter fisk. Hekker i kolonier på sandstrender og øyer.`},
+  {id:106,navn:`Rødnebbterne`,latin:`Sterna paradisaea`,beskrivelse:`Den store trekkfuglen som hekker i norske kolonier og overvintrer i Antarktis – en av jordens lengste trekkruter. Grå kropp, hvit kinn og helrødt nebb.`},
+  {id:107,navn:`Makrellterne`,latin:`Sterna hirundo`,beskrivelse:`Lik rødnebbterne men med rød nebb med sort spiss og svakere grå undersidde. Dykker energisk etter fisk. Hekker langs norske kyster og innsjøer.`},
+  {id:108,navn:`Dvergterne`,latin:`Sternula albifrons`,beskrivelse:`Norges minste sjøterne med hvit panne og gult nebb. Hekker på utsatte sandstrender og grusbanker langs kysten. Sårbar for forstyrrelser.`},
+  {id:109,navn:`Svartterne`,latin:`Chlidonias niger`,beskrivelse:`Mørk, nær helsvart terne i sommerdrakt. Svever lavt over innsjøer og plukker mat fra overflaten. Sjelden hekkefugl i norske lavlandsmyrer.`},
+  {id:110,navn:`Lomvi`,latin:`Uria aalge`,beskrivelse:`Stor alkefugl med brun-sort oversidde og hvit undersidde. Hekker tett i store kolonier på fuglefjell. Flyr med raske vingslag lavt over vannflaten.`},
+  {id:111,navn:`Polarlomvi`,latin:`Uria lomvia`,beskrivelse:`Lik lomvi men med kortere, tykkere nebb med hvit stribe. Hekker på Svalbard og arktiske fuglefjell. Overvintrer til havs i arktiske farvann.`},
+  {id:112,navn:`Alke`,latin:`Alca torda`,beskrivelse:`Svart og hvit alkefugl med karakteristisk lateralt komprimert nebb med hvite striper. Hekker i sprekker på fuglefjell. Flyr lavt over havet.`},
+  {id:113,navn:`Alkekonge`,latin:`Alle alle`,beskrivelse:`Verdens minste alkefugl, ikke større enn en stær. Hekker i steinurer på Svalbard i millioner av par. Tilbringer livet til havs i polare farvann.`},
+  {id:114,navn:`Lunde`,latin:`Fratercula arctica`,beskrivelse:`Det fargerike triangelnebbet og de oransje bena gjør lunden uforvekselbar. Graver reirganger i jordbakke. En av Norges kjæreste fugler.`},
+  {id:115,navn:`Teist`,latin:`Cepphus grylle`,beskrivelse:`Helsvart med hvite vingepletter i sommerdrakt og knallrøde ben. Skiller seg fra lomviene ved å hekke enkeltvis i steinsprekkene langs kysten.`},
+  {id:116,navn:`Ringdue`,latin:`Columba palumbus`,beskrivelse:`Norges største due med hvit halvmåne på halsen og rosa bryst. Kaller med et fem-stavelsers dypt gurrende kall i skogen. Hekker i løv- og barskog.`},
+  {id:117,navn:`Skogdue`,latin:`Columba oenas`,beskrivelse:`Lik ringdue men uten hvit halsflekk og hvingespeil. Lever i gammel løvskog med hulltrær. Hekker i spetter og naturhull.`},
+  {id:118,navn:`Tyrkerdue`,latin:`Streptopelia decaocto`,beskrivelse:`Lys beigegul due med svart og hvit halvmåne på nakken. Ekspandert kraftig nordover gjennom 1900-tallet. Vanlig i hager og tettbygde strøk.`},
+  {id:119,navn:`Turteldue`,latin:`Streptopelia turtur`,beskrivelse:`Vakkert brun og gråfarget due med sorte og hvite halsstriber. Kalling er et dypt, snurrende kurrende. Sjelden besøkende i Sørøst-Norge.`},
+  {id:120,navn:`Gjøk`,latin:`Cuculus canorus`,beskrivelse:`Kjent på sin tydelige tostaves sang. Snylter på andre fuglers reir og legger egg i dem. Hunnen som imiterer hønsehauken for å skremme vertspar fra redet.`},
+  {id:121,navn:`Hubro`,latin:`Bubo bubo`,beskrivelse:`Europas største ugle med orange øyne og store ørefjærtupper. Det dype «bu-ho»-ropet bæres langt i nattlandskapet. Hekker i fjellsider og skogsområder.`},
+  {id:122,navn:`Snøugle`,latin:`Bubo scandiacus`,beskrivelse:`Stor, hvit ugle med gule øyne. Aktiv om dagen i sitt arktiske habitat. Hekker på tundra i år med mye lemen.`},
+  {id:123,navn:`Haukugle`,latin:`Surnia ulula`,beskrivelse:`Slanke ugle med lang hale som minner om en hauk i silhuett. Jakter om dagen fra toppen av trær. Hekker i boreal barskog og myr.`},
+  {id:124,navn:`Spurveugle`,latin:`Glaucidium passerinum`,beskrivelse:`Norges minste ugle, ikke større enn en spurv. Runde hodet uten øretupper og gule øyne er karakteristisk. Jakter mest i skumringen i gammel granskog.`},
+  {id:125,navn:`Hornugle`,latin:`Asio otus`,beskrivelse:`Middels stor ugle med korte ørefjærtupper og orange øyne. Lever skjult i tette grantrær og jakter mus om natten. Hekker i forlatte kråkereir.`},
+  {id:126,navn:`Jordugle`,latin:`Asio flammeus`,beskrivelse:`Ugle som hekker på bakken i åpen myr og hei. Aktiv i tusemørket. Hvite og svarte vingeplass er synlig fra undersidde. Vanlig i lemenår.`},
+  {id:127,navn:`Slagugle`,latin:`Strix nebulosa`,beskrivelse:`Nordens største ugle med stor rund hode med konsentriske sirkler og gule øyne. Lever i gammel boreal skog og myr. Taus og mystisk.`},
+  {id:128,navn:`Kattugle`,latin:`Strix aluco`,beskrivelse:`Norges vanligste ugle med rund hode uten øretupper og mørke øyne. «Huu-hu-huuu»-ropet høres i løvskog og parker. Hekker i trehull.`},
+  {id:129,navn:`Perleugle`,latin:`Aegolius funereus`,beskrivelse:`Liten ugle med hvit flekket brun rygg og hvit flekket brun ansiktsmaske. Hekker i spettehull i boreal granskog. Kaller med en monoton fløytelyd.`},
+  {id:130,navn:`Nattravn`,latin:`Caprimulgus europaeus`,beskrivelse:`Kryptisk brunmotlet nattfugl som hviler på greiner langs lengdeaksen, ikke tvers. Kaller med en vedvarende, snurrende mekanisk lyd ved kveldstid. Hekker på tørre heier.`},
+  {id:131,navn:`Tårnseiler`,latin:`Apus apus`,beskrivelse:`Tilbringer nesten hele livet i luften, sover og parer seg på vingene. Lang sigdformet vinger og stump hale. Kaller med et gjennomtrengende skrik over byer om sommeren.`},
+  {id:132,navn:`Isfugl`,latin:`Alcedo atthis`,beskrivelse:`Dazzlende blå og oransje fjærdrakt er uforvekselbar. Dykker lynraskt fra grein inn i vann for å ta fisk. Sjelden men regelmessig hekkefugl ved rolige elver i Sør-Norge.`},
+  {id:133,navn:`Hærfugl`,latin:`Upupa epops`,beskrivelse:`Karakteristisk fjærtopp, oransje-svart stribet kropp og langt bøyd nebb. Kaller med et hult «hoop-hoop-hoop». Sjelden sommergjest i Sør-Norge.`},
+  {id:134,navn:`Vendehals`,latin:`Jynx torquilla`,beskrivelse:`En atypisk spett som mangler spettefarger og klatrebein. Kan vri hodet nesten 180 grader – derav navnet. Kaller med høyt fugleskrik. Sjelden hekkefugl i gammel løvskog.`},
+  {id:135,navn:`Gråspett`,latin:`Picus canus`,beskrivelse:`Lik grønnspett men grå-olivengrønn uten rød nakke. Hannen har lite rød panneflekkk. Hakker mest maur. Lever i gammel løvskog og hager.`},
+  {id:136,navn:`Grønnspett`,latin:`Picus viridis`,beskrivelse:`Klart grønn med rød hette og gul gump godt synlig i flukt. Hekker i gammel løvskog og spiser nesten utelukkende maur. Kaller med en rullende, latter-lignende lyd.`},
+  {id:137,navn:`Svartspett`,latin:`Dryocopus martius`,beskrivelse:`Norges største spett, krukasjonssvart med rød hette. Hakker store, rektangulære hull i råtne gran- og furutrær. Kallet er et melankolsk, klagsomt rop i gammel skog.`},
+  {id:138,navn:`Flaggspett`,latin:`Dendrocopos major`,beskrivelse:`Norges vanligste spett med karakteristisk svart-hvit mønster og rød underhale. Kaller med et skarpt «kik» og trommer kraftig på tørre greiner. Hekker i løv- og barskog.`},
+  {id:139,navn:`Hvitryggspett`,latin:`Dendrocopos leucotos`,beskrivelse:`Lik flaggspett men med hvit rygg og mer rød på magen. Foretrekker gammel, rik løvskog med mye død ved. Sjelden og sårbar art.`},
+  {id:140,navn:`Dvergspett`,latin:`Dryobates minor`,beskrivelse:`Norges minste spett, ikke større enn en spurv. Hannen har rød kalott. Lever i eldre løvskog og hager. Trommingen er svak og langsom.`},
+  {id:141,navn:`Tretåspett`,latin:`Picoides tridactylus`,beskrivelse:`Den eneste norske spetten med tre tær i stedet for fire. Hannen har gul kalott. Foretrekker gammel barskog med mye barkbiller. Sjelden og knyttet til uberørt skog.`},
+  {id:142,navn:`Sanglerke`,latin:`Alauda arvensis`,beskrivelse:`Kjent på den lange, uavbrutte og varierte sangen fra høyt oppe i luften. Brun med liten fjærtopp. Hekker på åpne dyrka marker og strandenger.`},
+  {id:143,navn:`Trelerke`,latin:`Lullula arborea`,beskrivelse:`Liten lerke med karakteristisk spiralformet sang fra høy flukt. Kortere hale enn sanglerke og markert øyestribe. Hekker på tørre heier med spredt skog.`},
+  {id:144,navn:`Fjellerke`,latin:`Eremophila alpestris`,beskrivelse:`Sort og gul hodetegning med liten horntupper er kjennetegnet. Hekker i åpent fjelllandskap og på Svalbard. Overvintrer i lavlandet på åkrer og strender.`},
+  {id:145,navn:`Sandsvale`,latin:`Riparia riparia`,beskrivelse:`Den minste norske svale med brun rygg og bredt brunbånd på brystet. Hekker kolonialt i sandvegger langs elver og grustaket. Flyr lavt over vannet.`},
+  {id:146,navn:`Låvesvale`,latin:`Hirundo rustica`,beskrivelse:`Blå-svart rygg, rustbrun struppe og dypt kløftet hale er typisk. Den klassiske bondegårdssvalen. Hekker i låver og uthus og fanger insekter i luften.`},
+  {id:147,navn:`Taksvale`,latin:`Delichon urbicum`,beskrivelse:`Hvit gump og kort, kløftet hale skiller den fra låvesvala. Bygger leirreir under takutstikk. Hekker kolonielt i byer og tettsteder.`},
+  {id:148,navn:`Trepiplerke`,latin:`Anthus trivialis`,beskrivelse:`Brun-stripet piplerke som flyr opp i tre og synger nedover i fallende sang. Hekker i lysåpen skog og kantsoner. Mer stripet og gulere enn heipiplerke.`},
+  {id:149,navn:`Heipiplerke`,latin:`Anthus pratensis`,beskrivelse:`Norges vanligste piplerke med stripet brun fjærdrakt og rosa bein. Hekker på myr, hei og fjellbjørkeskog. Kaller med et skarpt «tsi-it».`},
+  {id:150,navn:`Skjærpiplerke`,latin:`Anthus petrosus`,beskrivelse:`Mørk, gråbrun piplerke knyttet til steinete kyster. Ligner heipiplerke men mørkere og med mørkere bein. Lever langs kystskjærgården hele året.`},
+  {id:151,navn:`Lappiplerke`,latin:`Anthus cervinus`,beskrivelse:`Sommerdrakt med rustbrun struppe og kinn er karakteristisk. Hekker på åpne arktiske tundraer og myrer. Passerer kysten i flokker under høsttrekket.`},
+  {id:152,navn:`Vannpiplerke`,latin:`Anthus spinoletta`,beskrivelse:`Grå-brun piplerke med diffust stripet bryst. Hekker ved fjellbekker og -myrer. I vinterdrakten likner den heipiplerke men har mørkere bein.`},
+  {id:153,navn:`Gulerle`,latin:`Motacilla flava`,beskrivelse:`Hannens klare gule undersidde og olivengrønne rygg er karakteristisk. Mange underarter med varierende hodeofarger. Hekker i eng og myr med fuktig vegetasjon.`},
+  {id:154,navn:`Vintererle`,latin:`Motacilla cinerea`,beskrivelse:`Grå rygg, gul gump og lang hale er kjennetegn. Lever alltid nær rennende vann. Vippehalsen konstant. Hekker ved fjellbekker og strykelver.`},
+  {id:155,navn:`Linerle`,latin:`Motacilla alba`,beskrivelse:`Svart og hvit med lang, vibberende hale. Norges mest kjente erle. Hekker nær menneskebolig og langs elvebredder og havneanlegg.`},
+  {id:156,navn:`Sidensvans`,latin:`Bombycilla garrulus`,beskrivelse:`Elegant rosa-brun fugl med spiss fjærtopp, rød vingekant og gul halesaum. Kommer i store invasjoner fra nord om vinteren for å beite på bær. Kaller med en bølgende trille.`},
+  {id:157,navn:`Fossekall`,latin:`Cinclus cinclus`,beskrivelse:`Mørk brun med hvit bryst. Den eneste sangfuglen som kan gå langs elvebunnen og svømme under vann for å finne insektslarver. Hekker alltid ved strie elver og fosser.`},
+  {id:158,navn:`Gjerdesmett`,latin:`Troglodytes troglodytes`,beskrivelse:`En av Norges minste og mest energiske fugler med kortreist, oppreist hale. Synger overraskende høyt for sin størrelse. Hekker i tett vegetasjon nær bakken.`},
+  {id:159,navn:`Jernspurv`,latin:`Prunella modularis`,beskrivelse:`Diskret brun fugl med grå hode og smal nebb som ofte ses nede i buskene. Kaller med et tynn pip. Hekker i tett vegetasjon i hager og skog.`},
+  {id:160,navn:`Buskskvett`,latin:`Saxicola rubetra`,beskrivelse:`Hannens oransjebrune bryst, hvitt øyestribe og svart ansikt er karakteristisk. Sitter utpost på toppen av lave busker og kvaster. Hekker på fuktig eng og myr.`},
+  {id:161,navn:`Steinskvett`,latin:`Oenanthe oenanthe`,beskrivelse:`Grå og svart med hvit gump som er tydelig i flukt. En av de første vårfuglene som kommer. Hekker i steinmurer, urer og åpent fjellterreng.`},
+  {id:162,navn:`Rødstrupe`,latin:`Erithacus rubecula`,beskrivelse:`Den rustbrune brystet er uforvekselbar. En av de tidligste til å synge om morgenen og siste om kvelden. Hekker i løvskog og hager.`},
+  {id:163,navn:`Blåstrupe`,latin:`Luscinia svecica`,beskrivelse:`Hannens blå strupe med rød midtflekk er enestående. Nattlig sanger med kompleks melodi. Hekker i lavereliggende vierkratt og fuktige buskområder i fjellet.`},
+  {id:164,navn:`Svartrødstjert`,latin:`Phoenicurus ochruros`,beskrivelse:`Hannens svart kropp med oranjerødt stjert er karakteristisk. Lever i fjellvegger, steinbrudd og bygninger. Sjelden hekkefugl i Sør-Norge.`},
+  {id:165,navn:`Rødstjert`,latin:`Phoenicurus phoenicurus`,beskrivelse:`Hannen med grå rygg, svart ansikt og orange-rød bryst og stjert er vakker. Hekker i hulltrær i løvskog og gammel fruktskog. Kjent som den «blinkende»fuglen.`},
+  {id:166,navn:`Svartstrupe`,latin:`Saxicola rubicola`,beskrivelse:`Hannens svarte hode mot oransjebrunt bryst og hvit halsflekk er iøynefallende. Sjelden hekkefugl i Norge, mest langs kystlyngheiene. Sitter fremtredende på busker.`},
+  {id:167,navn:`Ringtrost`,latin:`Turdus torquatus`,beskrivelse:`Svarttrostlignende med bredt hvitt brystbånd. Fjellenes trost som kan minne om svarttrosten men er fuglefjell-trekk. Hekker i fjellbjørkeskog og subalpint beltet.`},
+  {id:168,navn:`Svarttrost`,latin:`Turdus merula`,beskrivelse:`Hannens helsvarte fjærdrakt og gule nebb er uforvekselbar. En av de rikeste sangere i norsk fugleverden. Hekker vanlig i hager og skogsområder.`},
+  {id:169,navn:`Måltrost`,latin:`Turdus philomelos`,beskrivelse:`Brun over- og kremgul undersidde med runde, mørke flekker. Sangen er kraftig og klart repeterende fraser. Hekker i løv- og blandingsskog.`},
+  {id:170,navn:`Rødvingetrost`,latin:`Turdus iliacus`,beskrivelse:`Lik måltrost men med rødoransje farge under vingene og tydelig øyestrip. Norges vanligste trost. Hekker i bjørkeskogen og trekker i store flokker.`},
+  {id:171,navn:`Duetrost`,latin:`Turdus viscivorus`,beskrivelse:`Norges største trost med mer prikket undersidde og hvit vingebakside. Kaller med rasping, skramlende lyd i dårlig vær. Hekker i skog og åpne kulturlandskaper.`},
+  {id:172,navn:`Gresshoppesanger`,latin:`Locustella naevia`,beskrivelse:`Kallen er en vedvarende, insektlignende snurring som kan forveksles med gresshopper. Kryptisk brun med stripet rygg og rund hale. Hekker i fuktig buskvegetasjon.`},
+  {id:173,navn:`Sivsanger`,latin:`Acrocephalus schoenobaenus`,beskrivelse:`Brun med markert øyestrip og stripet isse. Synger uavbrutt fra sivet, med imitasjoner av andre fugler. Hekker i sivkanter og myrvegetasjon.`},
+  {id:174,navn:`Myrsanger`,latin:`Acrocephalus palustris`,beskrivelse:`Likner rørsanger men brunere og med mer oliven tone. Sangen inneholder mange imitasjoner av afrikanske fugler fra overvintringsplassene. Hekker i urterik vegetasjon.`},
+  {id:175,navn:`Rørsanger`,latin:`Acrocephalus scirpaceus`,beskrivelse:`Rustrød-brun med lys øyestrip og karakteristisk sang fra inne i sivet. Hekker i store tak og takrør langs innsjøer og kanaler.`},
+  {id:176,navn:`Gulsanger`,latin:`Hippolais icterina`,beskrivelse:`Klart gul undersidde og olivengrønn rygg. Sangen er kraftig og varierende. Hekker i løvskog og hager. Har karakteristisk stor nebb for en sanger.`},
+  {id:177,navn:`Hauksanger`,latin:`Curruca nisoria`,beskrivelse:`Tykt nebb og transversal stripemønster på undersidde gjør den unik blant sangerne. Sjelden hekkefugl i Sør-Norges kantsoner og busker.`},
+  {id:178,navn:`Tornsanger`,latin:`Curruca communis`,beskrivelse:`Gråbrun med rødbrune vinger og hvit hals. Synger høyt fra toppen av busker i tørre kantsoner. Hekker i åpne busklandskap.`},
+  {id:179,navn:`Hagesanger`,latin:`Sylvia borin`,beskrivelse:`Ensfarget varmebrun uten markante kjennetegn – en av de mest anonyme sangerne. Men sangen er rik og varierende. Hekker i løv- og busklandskap.`},
+  {id:180,navn:`Munk`,latin:`Sylvia atricapilla`,beskrivelse:`Hannens svarte og hunnens brune kalott er karakteristisk. Sangen er rik og melodisk. Hekker i løvskog og hager med tett undervegetasjon.`},
+  {id:181,navn:`Løvsanger`,latin:`Phylloscopus trochilus`,beskrivelse:`Norges vanligste fugl med diskret gulgrønn fjærdrakt. Sangen er en nedadgående, melankolsk cascade. Hekker i bjørkeskog og buskvegeteion over hele landet.`},
+  {id:182,navn:`Bøksanger`,latin:`Phylloscopus sibilatrix`,beskrivelse:`Klarere gul og grønn enn løvsanger med hvit buk. Sangen er en hvinende cascademelodi. Hekker i gammel bøke- og eikskog i Sør-Norge.`},
+  {id:183,navn:`Gransanger`,latin:`Phylloscopus collybita`,beskrivelse:`Lik løvsanger men mer grå-brun. Kaller med tydelig «hweet» og sangen er enstonig gjentatte tostavige lyder. Hekker i løv- og blandingsskog.`},
+  {id:184,navn:`Fuglekonge`,latin:`Regulus regulus`,beskrivelse:`Europas minste fugl. Hannens gule hodestribe med oransje midtstribe er enestående. Holder alltid til i grantrær og er i konstant bevegelse. Kaller med et meget tynt pip.`},
+  {id:185,navn:`Gråfluesnapper`,latin:`Muscicapa striata`,beskrivelse:`Grå-brun med diffust stripet bryst. Sitter oppreist og gjør regelmessige flygninger etter insekter fra utsiktspost. Hekker i løvskog og hager.`},
+  {id:186,navn:`Svarthvit fluesnapper`,latin:`Ficedula hypoleuca`,beskrivelse:`Hannens svart-hvit kontrast er elegant. Hekker gjerne i fuglekasser. Synger en enkel, klingende sang. Hekker i løvskog og gamle frukthager.`},
+  {id:187,navn:`Dvergfluesnapper`,latin:`Ficedula parva`,beskrivelse:`Liten med hannens gråblå rygg og oransjerødt struppe. Sitter i underskogen i gammel granskog. Sjelden og lokalt forekommende hekkefugl.`},
+  {id:188,navn:`Skjeggmeis`,latin:`Panurus biarmicus`,beskrivelse:`Hannens lange svarte bart er karakteristisk mot en brun kropp. Lever nesten utelukkende i store sivskoger. Sjelden hekkefugl i Sør-Norge.`},
+  {id:189,navn:`Stjertmeis`,latin:`Aegithalos caudatus`,beskrivelse:`Karakteristisk med sin svært lange hale og lille, runde kropp. Hvit og svart med rosa tinge. Flyr i kvitrende familieflokker gjennom skogen.`},
+  {id:190,navn:`Lappmeis`,latin:`Poecile cinctus`,beskrivelse:`Skogens sibirske meis med mer diffus svart hette og brunere sider enn løv- og granmeis. Lever i gammel boreal skog i nord. Er mer tillitsfull enn de fleste meiser.`},
+  {id:191,navn:`Granmeis`,latin:`Poecile montanus`,beskrivelse:`Sort hette, hvite kinn og brun rygg. Svart hakkelapp er mer sammensatt enn hos løvmeis. Hekker i granskog og blandingsskog. Hakker ut eget redehull.`},
+  {id:192,navn:`Løvmeis`,latin:`Poecile palustris`,beskrivelse:`Lik granmeis men mer blank sort kalott og uten brune sider. Lever i gammel løvskog. Roper skarpt «pitcho pitcho pitcho» i kontrast til granmeisens nasale stemme.`},
+  {id:193,navn:`Svartmeis`,latin:`Periparus ater`,beskrivelse:`Nordens minste meis med sort hette og hvit nakkeplett. Lever i gran- og lauvskog. Samler mat i store lagre. Kaller med et tynt, høyt pip.`},
+  {id:194,navn:`Topmeis`,latin:`Lophophanes cristatus`,beskrivelse:`Den rask-viftende fjærtoppen og svart-hvit stripet hode er uforvekselbar. Lever i gammel granskog. Kaller med en gnissende «zi-zi-zi-lyd».`},
+  {id:195,navn:`Blåmeis`,latin:`Cyanistes caeruleus`,beskrivelse:`Blå kalott, gule undersidde og grønne rygg er et kjent syn i norske hager og fuglekasser. Aktiv og kvikk i leteingen etter insekter i løvtrær. Hekker i hulltrær.`},
+  {id:196,navn:`Kjøttmeis`,latin:`Parus major`,beskrivelse:`Norges vanligste meis med sort hode, hvite kinn og gul undersidde med sort stribe. Allsidig og smart. Hekker i fuglekasser og naturlige hullrom.`},
+  {id:197,navn:`Spettmeis`,latin:`Sitta europaea`,beskrivelse:`Eneste norske fugl som kan gå like godt nedover og oppover trestammen. Blågrå rygg og rustbrun undersidde. Kaller høylytt og allsidig. Hekker i gammel skog.`},
+  {id:198,navn:`Trekryper`,latin:`Certhia familiaris`,beskrivelse:`Kryptisk brun med hvit undersidde. Kryper alltid oppover trestammen og flyr ned til bunnen igjen. Sangen er en fin, nedadgående cascade. Lever i gammel skog.`},
+  {id:199,navn:`Tornirisk`,latin:`Linaria cannabina`,beskrivelse:`Hannens karmosinrøde bryst og panne i sommerdrakt er vakker. Hekker i buskvegeteion og åpent kulturlandskap. Kaller med et melodisk, kvitrende kor.`},
+  {id:200,navn:`Varsler`,latin:`Lanius excubitor`,beskrivelse:`Stor, svart-hvit-grå fugl med krokete nebb. Spidder insekter og småfugl på tornene av busker som matforråd – derav kallenavnet «tornskate». Hekker i åpent kulturlandskap.`},
+  {id:201,navn:`Nøtteskrike`,latin:`Garrulus glandarius`,beskrivelse:`Rosenrød kropp med blå vingetegning og svart-hvit hode. Gjemmer eikenøtter i tusenvis om høsten. Kaller med et raut skrik som advarer hele skogen.`},
+  {id:202,navn:`Lavskrike`,latin:`Perisoreus infaustus`,beskrivelse:`Varmebrun med grå hode. Tillitsfull skogsfugl som følger skigåere og turgåere. Samler matforråd for vinteren. Hekker tidlig i gammel barskog i nord.`},
+  {id:203,navn:`Skjære`,latin:`Pica pica`,beskrivelse:`Svart og hvit med lang, blågrønn glinsende hale. En av de intelligentste fuglene med høy hjerne-kroppsvekt ratio. Hekker i store piggete risreir i trær.`},
+  {id:204,navn:`Nøttekråke`,latin:`Nucifraga caryocatactes`,beskrivelse:`Mørkebrun med hvite flekker. Spesialisert på å finne hassel- og sibirpinnegnøtter den gjemmer om høsten. Har et utmerket romlig hukommelse for gjemmestedene.`},
+  {id:205,navn:`Kaie`,latin:`Coloeus monedula`,beskrivelse:`Liten kråke med lysegrå nakke og blå-svart glinsende hode. Hekker i kolonier i tårn, kirker og fjellsider. Kaller med et karakteristisk «tjak».`},
+  {id:206,navn:`Kornkråke`,latin:`Corvus frugilegus`,beskrivelse:`Lik kråke men med bart hudparti rundt nebbbasen og purpurglinsende fjærer. Hekker i store kolonier i tretopper nær åpent jordbruksland. Sjelden i Norge.`},
+  {id:207,navn:`Kråke`,latin:`Corvus cornix`,beskrivelse:`Gråkropp med svart hode, vinger og hale. Norges vanligste kråkefugl. Intelligent og allsidig. Hekker overalt fra kyst til fjell.`},
+  {id:208,navn:`Svartkråke`,latin:`Corvus corone`,beskrivelse:`Helsvart kråke uten grå kropp. Sjelden i Norge. Hybridiserer med grå kråke i kontaktsonen. Lever som kråka men litt mer sky.`},
+  {id:209,navn:`Ravn`,latin:`Corvus corax`,beskrivelse:`Nordens største spurvefugl med helsvart fjærdrakt og kileformet hale. Kaller med et dypt «korrr». Intelligensen og sosiale livet er legendarisk. Hekker tidlig på fjellhyller.`},
+  {id:210,navn:`Stær`,latin:`Sturnus vulgaris`,beskrivelse:`Prikket sort med grønn og purpur glans. Kaller høylytt og imiterer andre fuglers sang. Hekker i fuglekasser og naturhull og samles i enorme flokker om høsten.`},
+  {id:211,navn:`Gråspurv`,latin:`Passer domesticus`,beskrivelse:`Hannens grå isse, kastanjebrun nakke og svart strupe er kjent. Hekker i og rundt menneskebolig. Bestandene har gått tilbake de siste tiårene.`},
+  {id:212,navn:`Pilfink`,latin:`Passer montanus`,beskrivelse:`Lik gråspurv men begge kjønn har kastanjebrun isse og sort øreflekkk. Lever i mer spredt bebyggelse og skogbryn enn gråspurven.`},
+  {id:213,navn:`Bokfink`,latin:`Fringilla coelebs`,beskrivelse:`Hannens rosa-rød bryst, blågrå hode og hvite vingebånd er vakker. Norges vanligste hekkefugl. Sangen er en energisk cascade som avsluttes med en karakteristisk «kikk».`},
+  {id:214,navn:`Bjørkefink`,latin:`Fringilla montifringilla`,beskrivelse:`Hannens sort hode og rygge med oransjegul skulder i sommerdrakt er karakteristisk. Trekker i enorme flokker gjennom Norge og overvintrer i bøkeskogene i Europa.`},
+  {id:215,navn:`Grønnfink`,latin:`Chloris chloris`,beskrivelse:`Olivengrønn med karakteristisk gule kanter på vinger og hale. Kaller med en nasende, hvinende lyd. Hekker i løvskog og hager.`},
+  {id:216,navn:`Stillits`,latin:`Carduelis carduelis`,beskrivelse:`Rødt ansikt, gul vingbånd og svart-hvit hode gjør den til en av Norges vakreste fugler. Kaller med et klingende, perleliknende trille. Hekker i frukthager og kantsoner.`},
+  {id:217,navn:`Grønnsisik`,latin:`Spinus spinus`,beskrivelse:`Liten, gul-grønn med svart hette hos hann. Henger akrobatisk i bjørkerakler. Kaller med et fintrillende «tsi-tsi». Hekker i gran- og bjørkeskog.`},
+  {id:218,navn:`Bergirisk`,latin:`Linaria flavirostris`,beskrivelse:`Stripet brun som heipiplerke men med mer gulfarget nebb og hvit gump. Lever på åpne heimarker. Hekker i lyngheier og fjellbakker langs kysten.`},
+  {id:219,navn:`Gråsisik`,latin:`Acanthis flammea`,beskrivelse:`Liten, brun-stripet med rød panne og hos hann rødt bryst. Hekker i bjørkeskogen. Invasjonsfugl som noen vintre forekommer i tusentalls i Sør-Norge.`},
+  {id:220,navn:`Korsnebb`,latin:`Loxia curvirostra`,beskrivelse:`Det korsformede nebbet er unikt i fugleverden og er tilpasset for å åpne grankongler. Hannens farge varierer fra gul til knallrød. Hekker i granskog, også midt på vinteren.`},
+  {id:221,navn:`Båndkorsnebb`,latin:`Loxia leucoptera`,beskrivelse:`Lik korsnebb men med tydelige hvite vingebånd. Mer nomadisk enn rødkorsnebb. Besøker norske granskoger uregelmessig i invasjonsår.`},
+  {id:222,navn:`Konglebit`,latin:`Pinicola enucleator`,beskrivelse:`Stor, traust fugl med hannen i rødfarget drakt. Bruker kraft til å bite av frø fra kjegler og bær. Nordlig fugl som besøker boreale skoger om vinteren.`},
+  {id:223,navn:`Rosenfink`,latin:`Carpodacus erythrinus`,beskrivelse:`Hannens karmoisinrøde hode og bryst er vakker. Sangen er en enkel, tydelig frase. Hekker i buskrydninger og kantsoner. Kom som hekkefugl til Norge på 1900-tallet.`},
+  {id:224,navn:`Kjernebiter`,latin:`Coccothraustes coccothraustes`,beskrivelse:`Massivt nebb, stor hode og kompakt kropp. Kan knekke kirsebærkjerner med sitt kraftige nebb. Hekker i gammel løvskog. Sjelden og tilbakeholden art.`},
+  {id:225,navn:`Lappspurv`,latin:`Calcarius lapponicus`,beskrivelse:`Hannens svart-hvit-rustbrun sommerdrakt er karakteristisk. Hekker på vidder og tundra i nord. Trekker i flokker over åpne kulturlandskap om høsten.`},
+  {id:226,navn:`Snøspurv`,latin:`Plectrophenax nivalis`,beskrivelse:`Hvit og svart – en hvitere fugl er vanskelig å finne. Hekker på Svalbard og høye fjell. Overvintrer i flokker på strender og kornakrer. Kaller med en klingende trille.`},
+  {id:227,navn:`Gulspurv`,latin:`Emberiza citrinella`,beskrivelse:`Hannens gule hode og bryst er karakteristisk. Sangen er kjent som «litt-brød-og-ingen-ost». Hekker i åpent kulturlandskap og kantsoner.`},
+  {id:228,navn:`Sivspurv`,latin:`Emberiza schoeniclus`,beskrivelse:`Hannens svarte hode med hvit kinn er karakteristisk. Lever alltid nær vann og våtmark. Synger fra toppen av sivstrå. Hekker i siv- og starmyrer.`}
+];
+
+// ─── STATE ───────────────────────────────────────────────────
+const state = {
+  aktivFugl: null,
+  hintNivå: 0,
+  feedback: null,
+  mestra: new Set(JSON.parse(localStorage.getItem('bv-mestra') || '[]')),
+  feilKø:  JSON.parse(localStorage.getItem('bv-feilkø') || '[]'),
+  historikk: [],
+};
+
+// ─── ALGORITMER ──────────────────────────────────────────────
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const d = Array.from({length:m+1}, (_,i) =>
+    Array.from({length:n+1}, (_,j) => i===0 ? j : j===0 ? i : 0));
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    d[i][j] = a[i-1]===b[j-1] ? d[i-1][j-1] : 1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);
+  return d[m][n];
+}
+
+function normaliser(t) {
+  return t.toLowerCase().trim()
+    .replace(/æ/g,'ae').replace(/ø/g,'o').replace(/å/g,'a')
+    .replace(/\s+/g,' ');
+}
+
+function erRiktig(svar, fasit) {
+  const s = normaliser(svar), f = normaliser(fasit);
+  if (s === f) return true;
+  const sO = svar.toLowerCase().trim(), fO = fasit.toLowerCase().trim();
+  if (sO === fO) return true;
+  const max = fasit.length <= 8 ? 1 : 2;
+  return levenshtein(s,f) <= max || levenshtein(sO,fO) <= max;
+}
+
+function velgNeste() {
+  const tilgj = FUGLER.filter(f => !state.historikk.includes(f.id));
+  const feilKand = tilgj.filter(f => state.feilKø.includes(f.id));
+  if (feilKand.length > 0 && Math.random() < 0.4)
+    return feilKand[Math.floor(Math.random() * feilKand.length)];
+  const ikkeMest = tilgj.filter(f => !state.mestra.has(f.id));
+  const pool = ikkeMest.length > 0 ? ikkeMest : (tilgj.length > 0 ? tilgj : FUGLER);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// ─── LAGRING ─────────────────────────────────────────────────
+function lagreTilLocalStorage() {
+  localStorage.setItem('bv-mestra', JSON.stringify([...state.mestra]));
+  localStorage.setItem('bv-feilkø', JSON.stringify(state.feilKø));
+}
+
+// ─── RENDER ──────────────────────────────────────────────────
+function render() {
+  const f = state.aktivFugl;
+  if (!f) return;
+
+  document.getElementById('beskrivelse').textContent = f.beskrivelse;
+
+  const hintEl = document.getElementById('hint-omrade');
+  if (state.hintNivå > 0) {
+    const maxVis = Math.min(state.hintNivå * 2, Math.floor(f.navn.length / 2));
+    const vis = f.navn.slice(0, maxVis);
+    hintEl.textContent = 'Hint: ' + vis + '...';
+    hintEl.style.display = 'block';
+  } else {
+    hintEl.style.display = 'none';
+  }
+
+  const inp = document.getElementById('svar-input');
+  inp.disabled = !!state.feedback;
+
+  const hintBtn = document.getElementById('hint-btn');
+  const hintUtbrukt = state.feedback || state.hintNivå >= 2;
+  hintBtn.disabled = hintUtbrukt;
+  hintBtn.style.opacity = hintUtbrukt ? '0.4' : '1';
+  hintBtn.style.cursor = hintUtbrukt ? 'not-allowed' : '';
+
+  const fbEl = document.getElementById('feedback-omrade');
+  const nyFuglBtn = document.getElementById('ny-fugl-btn');
+  if (state.feedback) {
+    const {type, fugl} = state.feedback;
+    const cls = type === 'riktig' ? 'feedback-riktig' : 'feedback-feil';
+    const ikon = type === 'riktig' ? '✓ ' : '✗ ';
+    fbEl.className = cls;
+    fbEl.innerHTML = `${ikon}<strong>${fugl.navn}</strong><span class="feedback-latin">${fugl.latin}</span>`;
+    fbEl.style.display = 'block';
+    nyFuglBtn.style.display = 'block';
+  } else {
+    fbEl.style.display = 'none';
+    nyFuglBtn.style.display = 'none';
+  }
+
+  const tot = FUGLER.length;
+  const ant = state.mestra.size;
+  const pst = Math.round((ant / tot) * 100);
+  document.getElementById('progresjon-tekst').textContent = `${ant} / ${tot}`;
+  document.getElementById('progresjon-bar').style.width = pst + '%';
+  document.getElementById('prosent-tekst').textContent = pst + '% fullført';
+
+}
+
+// ─── HANDLINGER ──────────────────────────────────────────────
+function giOpp() {
+  const f = state.aktivFugl;
+  if (!f) return;
+  if (!state.feilKø.includes(f.id)) state.feilKø.push(f.id);
+  state.feedback = { type: 'feil', fugl: f };
+  lagreTilLocalStorage();
+  render();
+}
+
+function sjekkSvar() {
+  const inp = document.getElementById('svar-input');
+  const svar = inp.value.trim();
+  const f = state.aktivFugl;
+  if (!f || !svar) return;
+
+  if (erRiktig(svar, f.navn)) {
+    state.mestra.add(f.id);
+    state.feilKø = state.feilKø.filter(id => id !== f.id);
+    state.feedback = { type: 'riktig', fugl: f };
+    feirRiktig();
+  } else {
+    if (!state.feilKø.includes(f.id)) state.feilKø.push(f.id);
+    state.feedback = { type: 'feil', fugl: f };
+  }
+  lagreTilLocalStorage();
+  render();
+}
+
+function visHint() {
+  if (state.feedback || state.hintNivå >= 2) return;
+  state.hintNivå++;
+  render();
+}
+
+function nyFugl() {
+  if (state.aktivFugl)
+    state.historikk = [...state.historikk, state.aktivFugl.id].slice(-10);
+  state.aktivFugl = velgNeste();
+  state.hintNivå = 0;
+  state.feedback = null;
+  document.getElementById('svar-input').value = '';
+  render();
+}
+
+function nullstill() {
+  state.mestra = new Set();
+  state.feilKø = [];
+  state.historikk = [];
+  state.hintNivå = 0;
+  state.feedback = null;
+  state.aktivFugl = velgNeste();
+  document.getElementById('svar-input').value = '';
+  skjulResetModal();
+  lagreTilLocalStorage();
+  render();
+}
+
+function visResetModal()  { document.getElementById('reset-modal').style.display = 'flex'; }
+function skjulResetModal(){ document.getElementById('reset-modal').style.display = 'none'; }
+
+// ─── KONFETTI ─────────────────────────────────────────────────
+function feirRiktig() {
+  const canvas = document.getElementById('gås-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const VARIGHET = 4000;
+  const ANTALL   = 160;
+  const START    = performance.now();
+  const FARGER   = [
+    '#E63946','#F4A261','#2A9D8F','#E9C46A','#264653',
+    '#A8DADC','#F1FAEE','#457B9D','#C77DFF','#80B918',
+    '#FF6B6B','#FFD166','#06D6A0','#118AB2','#EF476F',
+  ];
+
+  // ease-in-out cubic
+  function easeInOut(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  const biter = Array.from({ length: ANTALL }, () => {
+    const vinkel  = (Math.random() * 260 - 130) * (Math.PI / 180); // spred oppover
+    const fart    = 6 + Math.random() * 14;
+    const form    = Math.random() < 0.5 ? 'rekt' : 'sirkel';
+    return {
+      x:     Math.random() * canvas.width,
+      y:     canvas.height + 10,
+      vx:    Math.sin(vinkel) * fart,
+      vy:    -Math.cos(vinkel) * fart,
+      rot:   Math.random() * Math.PI * 2,
+      rotFart: (Math.random() - 0.5) * 0.25,
+      w:     6 + Math.random() * 8,
+      h:     form === 'rekt' ? 3 + Math.random() * 4 : 0,
+      form,
+      farge: FARGER[Math.floor(Math.random() * FARGER.length)],
+      forsinkelse: Math.random() * 0.3, // 0–30% forsinkelse i start
+    };
+  });
+
+  function animér(nå) {
+    const rå = (nå - START) / VARIGHET;
+    if (rå >= 1) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (const b of biter) {
+      // Lokal tid per bit, justert for forsinkelse
+      const lokal = Math.max(0, (rå - b.forsinkelse) / (1 - b.forsinkelse));
+      if (lokal <= 0) continue;
+
+      const fremgang = easeInOut(lokal);
+
+      // Posisjon: bue fra bunn, tyngdekraft trekker ned
+      const t  = lokal * VARIGHET / 1000; // sekunder
+      const px = b.x + b.vx * t * 60;
+      const py = (b.y + b.vy * t * 60) + 0.5 * 420 * t * t; // gravitasjon
+
+      // Fade ut siste 20%
+      const alpha = lokal > 0.8 ? 1 - (lokal - 0.8) / 0.2 : 1;
+      ctx.globalAlpha = alpha;
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(b.rot + b.rotFart * t * 60);
+      ctx.fillStyle = b.farge;
+
+      if (b.form === 'sirkel') {
+        ctx.beginPath();
+        ctx.arc(0, 0, b.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
+      }
+      ctx.restore();
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(animér);
+  }
+
+  requestAnimationFrame(animér);
+}
+
+
+// ─── INIT ────────────────────────────────────────────────────
+state.aktivFugl = velgNeste();
+render();
+</script>
+</body>
+</html>
