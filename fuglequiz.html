@@ -39,7 +39,21 @@
     top: 0;
     height: 100vh;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
   }
+  .sidebar-bunn {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-size: 0.75rem;
+    color: rgba(238,232,218,0.4);
+    line-height: 1.6;
+  }
+  .sidebar-bunn a {
+    color: rgba(238,232,218,0.5);
+    text-decoration: none;
+  }
+  .sidebar-bunn a:hover { color: rgba(238,232,218,0.8); }
   .sidebar h1 { color: #F5EED8; font-size: 2rem; margin: 0 0 0.25rem; }
   .sidebar p  { color: #B8C9A8; font-size: 0.85rem; margin: 0 0 2rem; font-style: italic; }
 
@@ -219,7 +233,7 @@
 <body class="flex">
 
 <aside class="sidebar">
-  <h1>Pippipp, Gakkgakk & Ørn</h1>
+  <h1>Pippipp,<br>Gakkgakk<br><nobr>& Ørn</nobr></h1>
   <p>Norsk fuglequiz</p>
 
   <span class="label-small">Mestret</span>
@@ -233,6 +247,11 @@
   <hr class="divider">
 
   <button class="btn btn-danger" onclick="visResetModal()">Nullstill fremgang</button>
+
+  <div class="sidebar-bunn">
+    Hallvar Bugge Johnsen<br>
+    <a href="mailto:hei@hallvar.no">hei@hallvar.no</a> · <a href="https://www.hallvar.no" target="_blank" rel="noopener">hallvar.no</a>
+  </div>
 </aside>
 
 <main class="quiz-area">
