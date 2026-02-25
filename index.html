@@ -250,6 +250,9 @@
     text-align: right;
     margin-top: 0.3rem;
   }
+  .bilde-attribution a { color: #B0A898; text-decoration: underline; }
+
+  .mobil-footer { display: none; }
 
   @media (max-width: 768px) {
     body { flex-direction: column !important; }
@@ -257,18 +260,35 @@
       width: 100%; min-height: auto; height: auto;
       position: static;
       order: 1;
-      padding: 0.75rem 1rem;
+      padding: 1rem 1.25rem;
       flex-direction: row;
       align-items: center;
-      gap: 1rem;
+      gap: 1.25rem;
     }
-    .sidebar-tittel h1 { font-size: 1rem; margin: 0 0 0.15rem; }
-    .sidebar-tittel p  { margin: 0; font-size: 0.72rem; }
+    .sidebar-tittel h1 { font-size: 1.25rem; margin: 0 0 0.15rem; }
+    .sidebar-tittel p  { margin: 0; font-size: 0.8rem; }
     .sidebar-progresjon { flex: 1; min-width: 0; }
+    .sidebar-progresjon .label-small { font-size: 0.7rem; }
+    .sidebar-progresjon .stat-value  { font-size: 1.1rem; }
     .sidebar .divider,
     .sidebar .btn-danger,
     .sidebar .sidebar-bunn { display: none; }
     .quiz-area { order: 2; padding: 1rem; max-width: 100%; }
+    .mobil-footer {
+      display: flex;
+      flex-direction: column;
+      order: 3;
+      background: var(--forest);
+      padding: 1.5rem;
+      gap: 1rem;
+    }
+    .mobil-footer-bunn {
+      font-size: 0.75rem;
+      color: rgba(238,232,218,0.45);
+      line-height: 1.6;
+    }
+    .mobil-footer-bunn a { color: rgba(238,232,218,0.55); text-decoration: none; }
+    .mobil-footer-bunn a:hover { color: rgba(238,232,218,0.8); }
   }
 </style>
 </head>
@@ -281,7 +301,7 @@
   </div>
 
   <div class="sidebar-progresjon">
-    <span class="label-small">Du har lært</span>
+    <span class="label-small">Du husker</span>
     <div class="stat-value" id="progresjon-tekst">–</div>
     <div class="progress-bar-bg" style="margin-top:0.4rem">
       <div class="progress-bar-fill" id="progresjon-bar" style="width:0%"></div>
@@ -340,6 +360,17 @@
     </button>
   </div>
 </main>
+
+<div class="mobil-footer">
+  <button class="btn btn-danger" onclick="visResetModal()">Nullstill fremgang</button>
+  <div class="mobil-footer-bunn">
+    Informasjon hentet fra<br>
+    <a href="https://www.artsdatabanken.no" target="_blank" rel="noopener">Artsdatabanken</a> og <a href="https://www.birdlife.no" target="_blank" rel="noopener">BirdLife Norge</a><br><br>
+    Et lite prosjekt av:<br>
+    Hallvar Bugge Johnsen<br>
+    <a href="mailto:hei@hallvar.no">hei@hallvar.no</a> · <a href="https://www.hallvar.no" target="_blank" rel="noopener">hallvar.no</a>
+  </div>
+</div>
 
 <canvas id="gås-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:999;top:0;left:0;width:100%;height:100%"></canvas>
 
@@ -658,9 +689,26 @@ async function hentKreditering(bildeUrl) {
     const d = await r.json();
     const meta = Object.values(d.query?.pages || {})[0]?.imageinfo?.[0]?.extmetadata;
     if (!meta) return 'Wikimedia Commons';
-    const fotograf = meta.Artist?.value?.replace(/<[^>]+>/g, '').trim() || null;
-    const lisens   = meta.LicenseShortName?.value || null;
-    return [fotograf ? `Foto: ${fotograf}` : null, lisens].filter(Boolean).join(' · ');
+    const artistHtml = meta.Artist?.value || null;
+    const lisens     = meta.LicenseShortName?.value || null;
+
+    let fotografHtml = null;
+    if (artistHtml) {
+      const linkMatch = artistHtml.match(/<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a>/);
+      if (linkMatch) {
+        let url  = linkMatch[1].startsWith('//') ? 'https:' + linkMatch[1] : linkMatch[1];
+        const navn = linkMatch[2].trim();
+        const erWiki = /wikimedia\.org|wikipedia\.org/.test(url);
+        const parentes = erWiki
+          ? `(Wikipedia-bruker${lisens ? ' · ' + lisens : ''})`
+          : `(${lisens || 'Wikimedia Commons'})`;
+        fotografHtml = `Foto: <a href="${url}" target="_blank" rel="noopener">${navn}</a> ${parentes}`;
+      } else {
+        const tekst = artistHtml.replace(/<[^>]+>/g, '').trim();
+        fotografHtml = `Foto: ${tekst}${lisens ? ' · ' + lisens : ''}`;
+      }
+    }
+    return fotografHtml || `Wikimedia Commons${lisens ? ' · ' + lisens : ''}`;
   } catch {
     return 'Wikimedia Commons';
   }
@@ -745,7 +793,7 @@ function render() {
       fuglBilde.alt             = f.navn;
       fuglBilde.style.display   = 'block';
       ingenBilde.style.display  = 'none';
-      bildeAttEl.textContent    = state.bildeAttribution || '';
+      bildeAttEl.innerHTML      = state.bildeAttribution || '';
       bildeAttEl.style.display  = state.bildeAttribution ? 'block' : 'none';
     } else {
       bildeLaster.style.display = 'none';
