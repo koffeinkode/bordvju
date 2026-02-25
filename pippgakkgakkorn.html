@@ -998,7 +998,7 @@ function sjekkSvar() {
     state.mestra.add(f.id);
     state.feilKø = state.feilKø.filter(id => id !== f.id);
     state.feedback = { type: 'riktig', fugl: f };
-    feirRiktig();
+    feirRiktig(state.mestra.size % 10 === 0 ? 1600 : 160);
   } else {
     if (!state.feilKø.includes(f.id)) state.feilKø.push(f.id);
     if (state.visBilde) {
@@ -1069,14 +1069,14 @@ function lukkBurger() {
 }
 
 // ─── KONFETTI ─────────────────────────────────────────────────
-function feirRiktig() {
+function feirRiktig(antall = 160) {
   const canvas = document.getElementById('gås-canvas');
   const ctx    = canvas.getContext('2d');
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
 
   const VARIGHET = 4000;
-  const ANTALL   = 160;
+  const ANTALL   = antall;
   const START    = performance.now();
   const FARGER   = [
     '#E63946','#F4A261','#2A9D8F','#E9C46A','#264653',
