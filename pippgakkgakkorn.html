@@ -695,7 +695,7 @@ async function hentBilde(fugl) {
 }
 
 async function visFuglBilde() {
-  if (state.visBilde || state.bildeLastes || state.feedback) return;
+  if (state.visBilde || state.bildeLastes) return;
   const fuglVedKlikk = state.aktivFugl;
   state.bildeLastes = true;
   render();
@@ -764,7 +764,7 @@ function render() {
   }
 
   const visFuglBtn   = document.getElementById('vis-fugl-btn');
-  const visFuglBrukt = state.visBilde || state.bildeLastes || !!state.feedback;
+  const visFuglBrukt = state.visBilde || state.bildeLastes;
   visFuglBtn.disabled      = visFuglBrukt;
   visFuglBtn.style.opacity = visFuglBrukt ? '0.4' : '1';
   visFuglBtn.style.cursor  = visFuglBrukt ? 'not-allowed' : '';
