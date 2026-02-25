@@ -647,6 +647,25 @@ function lagreTilLocalStorage() {
 // ─── BILDER ──────────────────────────────────────────────────
 const bildeCache = {};
 
+async function hentKreditering(bildeUrl) {
+  try {
+    const filnavn = bildeUrl.match(/\d+px-(.+)$/)?.[1];
+    if (!filnavn) return 'Wikimedia Commons';
+    const r = await fetch(
+      `https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(filnavn)}&prop=imageinfo&iiprop=extmetadata&format=json&origin=*`
+    );
+    if (!r.ok) return 'Wikimedia Commons';
+    const d = await r.json();
+    const meta = Object.values(d.query?.pages || {})[0]?.imageinfo?.[0]?.extmetadata;
+    if (!meta) return 'Wikimedia Commons';
+    const fotograf = meta.Artist?.value?.replace(/<[^>]+>/g, '').trim() || null;
+    const lisens   = meta.LicenseShortName?.value || null;
+    return [fotograf ? `Foto: ${fotograf}` : null, lisens].filter(Boolean).join(' · ');
+  } catch {
+    return 'Wikimedia Commons';
+  }
+}
+
 async function hentBilde(fugl) {
   const nøkkel = fugl.navn;
   if (nøkkel in bildeCache) return bildeCache[nøkkel];
@@ -657,21 +676,22 @@ async function hentBilde(fugl) {
     `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(fugl.latin)}`,
   ];
 
+  let bildeUrl = null;
   for (const url of endepunkter) {
     try {
       const r = await fetch(url);
       if (!r.ok) continue;
       const d = await r.json();
-      const bildeUrl = d.thumbnail?.source || null;
-      if (bildeUrl) {
-        bildeCache[nøkkel] = { url: bildeUrl, attribution: 'Foto: Wikipedia/Wikimedia Commons' };
-        return bildeCache[nøkkel];
-      }
+      bildeUrl = d.thumbnail?.source || null;
+      if (bildeUrl) break;
     } catch { continue; }
   }
 
-  bildeCache[nøkkel] = null;
-  return null;
+  if (!bildeUrl) { bildeCache[nøkkel] = null; return null; }
+
+  const attribution = await hentKreditering(bildeUrl);
+  bildeCache[nøkkel] = { url: bildeUrl, attribution };
+  return bildeCache[nøkkel];
 }
 
 async function visFuglBilde() {
