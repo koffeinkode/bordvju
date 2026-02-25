@@ -254,32 +254,42 @@
 
   .mobil-footer { display: none; }
 
+  .aksjon-panel { display: contents; }
+
   @media (max-width: 768px) {
     body { flex-direction: column !important; }
     .sidebar {
       width: 100%; min-height: auto; height: auto;
       position: static;
       order: 1;
-      padding: 1rem 1.25rem;
+      padding: 0.75rem 1.25rem;
       flex-direction: row;
       align-items: center;
-      gap: 1.25rem;
+      gap: 1rem;
     }
-    .sidebar-tittel h1 { font-size: 1.25rem; margin: 0 0 0.15rem; }
-    .sidebar-tittel p  { margin: 0; font-size: 0.8rem; }
-    .sidebar-progresjon { flex: 1; min-width: 0; }
-    .sidebar-progresjon .label-small { font-size: 0.7rem; }
-    .sidebar-progresjon .stat-value  { font-size: 1.1rem; }
+    .sidebar-tittel h1 { font-size: 1.7rem; margin: 0; line-height: 1.1; }
+    .sidebar-tittel p  { display: none; }
+    .sidebar-progresjon {
+      flex: 1; min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+    }
+    .sidebar-progresjon .label-small { font-size: 0.65rem; }
+    .sidebar-progresjon .stat-value  { font-size: 1rem; }
+    .sidebar-progresjon .progress-bar-bg { width: 100%; max-width: 120px; }
     .sidebar .divider,
     .sidebar .btn-danger,
     .sidebar .sidebar-bunn { display: none; }
-    .quiz-area { order: 2; padding: 1rem; max-width: 100%; }
+    .quiz-area { order: 2; padding: 1rem; padding-bottom: 180px; max-width: 100%; }
     .mobil-footer {
       display: flex;
       flex-direction: column;
       order: 3;
       background: var(--forest);
       padding: 1.5rem;
+      padding-bottom: calc(1.5rem + 180px);
       gap: 1rem;
     }
     .mobil-footer-bunn {
@@ -289,6 +299,21 @@
     }
     .mobil-footer-bunn a { color: rgba(238,232,218,0.55); text-decoration: none; }
     .mobil-footer-bunn a:hover { color: rgba(238,232,218,0.8); }
+    .aksjon-panel {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--cream);
+      padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+      box-shadow: 0 -2px 16px rgba(42,31,14,0.12);
+      z-index: 50;
+    }
+    .aksjon-panel .svar-input { margin-bottom: 0.5rem; }
+    .aksjon-panel .knapper { margin-top: 0.4rem; }
+    .aksjon-panel #vis-fugl-btn { margin-top: 0.4rem !important; }
+    .aksjon-panel #ny-fugl-btn { margin-top: 0.4rem !important; }
   }
 </style>
 </head>
@@ -338,26 +363,28 @@
 
     <div id="feedback-omrade" style="display:none"></div>
 
-    <input
-      class="svar-input"
-      id="svar-input"
-      type="text"
-      placeholder="Skriv fuglenavnet her..."
-      autocomplete="off"
-      autocorrect="off"
-      autocapitalize="off"
-      spellcheck="false"
-    >
+    <div class="aksjon-panel">
+      <input
+        class="svar-input"
+        id="svar-input"
+        type="text"
+        placeholder="Skriv fuglenavnet her..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      >
 
-    <div class="knapper">
-      <button class="btn btn-primary" onclick="sjekkSvar()">Sjekk svar</button>
-      <button class="btn btn-secondary" id="hint-btn" onclick="visHint()">Hint</button>
-      <button class="btn btn-secondary" onclick="giOpp()">Vet ikke</button>
+      <div class="knapper">
+        <button class="btn btn-primary" onclick="sjekkSvar()">Sjekk svar</button>
+        <button class="btn btn-secondary" id="hint-btn" onclick="visHint()">Hint</button>
+        <button class="btn btn-secondary" onclick="giOpp()">Vet ikke</button>
+      </div>
+      <button class="btn btn-secondary" id="vis-fugl-btn" onclick="visFuglBilde()" style="width:100%;margin-top:8px">Vis fugl</button>
+      <button class="btn btn-primary" id="ny-fugl-btn" onclick="nyFugl()" style="display:none;width:100%;margin-top:8px">
+        Neste fugl →
+      </button>
     </div>
-    <button class="btn btn-secondary" id="vis-fugl-btn" onclick="visFuglBilde()" style="width:100%;margin-top:8px">Vis fugl</button>
-    <button class="btn btn-primary" id="ny-fugl-btn" onclick="nyFugl()" style="display:none;width:100%;margin-top:8px">
-      Neste fugl →
-    </button>
   </div>
 </main>
 
@@ -754,6 +781,7 @@ async function visFuglBilde() {
   state.bildeUrl = resultat?.url || null;
   state.bildeAttribution = resultat?.attribution || null;
   render();
+  mobilScrollTil('bilde-omrade');
 }
 
 // ─── RENDER ──────────────────────────────────────────────────
@@ -855,6 +883,14 @@ function render() {
 }
 
 // ─── HANDLINGER ──────────────────────────────────────────────
+function mobilScrollTil(id) {
+  if (window.innerWidth > 768) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  const y = el.getBoundingClientRect().top + window.scrollY - 80;
+  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+}
+
 function giOpp() {
   const f = state.aktivFugl;
   if (!f) return;
@@ -862,6 +898,7 @@ function giOpp() {
   state.feedback = { type: 'feil', fugl: f };
   lagreTilLocalStorage();
   render();
+  mobilScrollTil('feedback-omrade');
 }
 
 function sjekkSvar() {
@@ -891,6 +928,7 @@ function sjekkSvar() {
   }
   lagreTilLocalStorage();
   render();
+  if (state.feedback) mobilScrollTil('feedback-omrade');
 }
 
 function visHint() {
@@ -912,6 +950,7 @@ function nyFugl() {
   state.bildeLastes      = false;
   document.getElementById('svar-input').value = '';
   render();
+  if (window.innerWidth <= 768) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function nullstill() {
