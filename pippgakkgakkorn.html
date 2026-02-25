@@ -281,7 +281,7 @@
   </div>
 
   <div class="sidebar-progresjon">
-    <span class="label-small">Fremgang</span>
+    <span class="label-small">Du har lært</span>
     <div class="stat-value" id="progresjon-tekst">–</div>
     <div class="progress-bar-bg" style="margin-top:0.4rem">
       <div class="progress-bar-fill" id="progresjon-bar" style="width:0%"></div>
@@ -803,7 +803,7 @@ function render() {
   const pst = Math.round((ant / tot) * 100);
   document.getElementById('progresjon-tekst').textContent = `${ant} av ${tot} fugler`;
   document.getElementById('progresjon-bar').style.width   = pst + '%';
-  document.getElementById('prosent-tekst').textContent    = `${ant} fugler lært`;
+  document.getElementById('prosent-tekst').textContent    = '';
 }
 
 // ─── HANDLINGER ──────────────────────────────────────────────
