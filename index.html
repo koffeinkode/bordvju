@@ -636,18 +636,17 @@ function lagreTilLocalStorage() {
 // ─── BILDER ──────────────────────────────────────────────────
 const bildeCache = {};
 
-async function hentBilde(latin) {
-  if (latin in bildeCache) return bildeCache[latin];
+async function hentBilde(navn) {
+  if (navn in bildeCache) return bildeCache[navn];
   try {
-    const r = await fetch(`https://no.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(latin)}`);
-    if (!r.ok) { bildeCache[latin] = null; return null; }
+    const r = await fetch(`https://no.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(navn)}`);
+    if (!r.ok) { bildeCache[navn] = null; return null; }
     const d = await r.json();
-    const url = d.thumbnail?.source?.replace(/\/\d+px-/, '/640px-') || null;
-    const attribution = url ? (d.originalimage ? 'Foto: Wikipedia/Wikimedia Commons' : 'Foto: Wikipedia/Wikimedia Commons') : null;
-    bildeCache[latin] = { url, attribution };
-    return bildeCache[latin];
+    const url = d.thumbnail?.source || null;
+    bildeCache[navn] = url ? { url, attribution: 'Foto: Wikipedia/Wikimedia Commons' } : null;
+    return bildeCache[navn];
   } catch {
-    bildeCache[latin] = null;
+    bildeCache[navn] = null;
     return null;
   }
 }
@@ -657,7 +656,7 @@ async function visFuglBilde() {
   const fuglVedKlikk = state.aktivFugl;
   state.bildeLastes = true;
   render();
-  const resultat = await hentBilde(fuglVedKlikk.latin);
+  const resultat = await hentBilde(fuglVedKlikk.navn);
   if (state.aktivFugl !== fuglVedKlikk) return;
   state.bildeLastes = false;
   state.visBilde = true;
