@@ -348,9 +348,8 @@
       justify-content: space-between;
       padding: 0.1rem 0;
     }
-    .sidebar-progresjon .label-small { font-size: 0.65rem; }
-    .sidebar-progresjon .stat-value  { font-size: 1rem; }
-    .sidebar-progresjon .progress-bar-bg { width: 100%; max-width: 120px; }
+    .sidebar-progresjon .label-small { font-size: 0.9rem; }
+    .sidebar-progresjon .stat-value  { font-size: 1.25rem; }
     .sidebar .divider,
     .sidebar .btn-danger,
     .sidebar .sidebar-bunn { display: none; }
@@ -404,10 +403,6 @@
   <div class="sidebar-progresjon">
     <span class="label-small">Du husker</span>
     <div class="stat-value" id="progresjon-tekst">–</div>
-    <div class="progress-bar-bg" style="margin-top:0.4rem">
-      <div class="progress-bar-fill" id="progresjon-bar" style="width:0%"></div>
-    </div>
-    <div style="font-size:0.8rem;color:#8A9E7A;margin-top:0.3rem" id="prosent-tekst">–</div>
   </div>
 
   <button class="burger-btn" onclick="toggleBurger()" aria-label="Meny">
@@ -972,8 +967,6 @@ function render() {
   const ant = state.mestra.size;
   const pst = Math.round((ant / tot) * 100);
   document.getElementById('progresjon-tekst').textContent = `${ant} av ${tot} fugler`;
-  document.getElementById('progresjon-bar').style.width   = pst + '%';
-  document.getElementById('prosent-tekst').textContent    = '';
 }
 
 // ─── HANDLINGER ──────────────────────────────────────────────
