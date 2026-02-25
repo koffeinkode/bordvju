@@ -252,7 +252,72 @@
   }
   .bilde-attribution a { color: #B0A898; text-decoration: underline; }
 
-  .mobil-footer { display: none; }
+  .burger-btn { display: none; }
+
+  .burger-drawer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+  }
+  .burger-drawer.open { display: block; }
+  .burger-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(42,31,14,0.45);
+    backdrop-filter: blur(2px);
+  }
+  .burger-panel {
+    position: absolute;
+    top: 0; right: 0;
+    width: min(300px, 82vw);
+    height: 100%;
+    background: var(--forest);
+    color: #EEE8DA;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .burger-lukk {
+    background: none;
+    border: none;
+    color: rgba(238,232,218,0.55);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    align-self: flex-end;
+  }
+  .burger-panel-seksjon {
+    font-size: 0.75rem;
+    color: rgba(238,232,218,0.45);
+    line-height: 1.7;
+  }
+  .burger-panel-seksjon a {
+    color: rgba(238,232,218,0.6);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(238,232,218,0.2);
+  }
+  .burger-panel-seksjon a:hover { color: rgba(238,232,218,0.85); }
+  .burger-panel-tittel {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.35rem;
+    color: #EEE8DA;
+    line-height: 1.2;
+    margin-bottom: 0.1rem;
+  }
+  .burger-panel-sub {
+    font-size: 0.7rem;
+    color: rgba(238,232,218,0.5);
+    margin-top: 0.15rem;
+  }
+  .burger-divider {
+    border: none;
+    border-top: 1px solid rgba(238,232,218,0.15);
+    margin: 0;
+  }
 
   .aksjon-panel { display: contents; }
 
@@ -264,17 +329,24 @@
       order: 1;
       padding: 0.75rem 1.25rem;
       flex-direction: row;
-      align-items: center;
+      align-items: stretch;
       gap: 1rem;
     }
+    .sidebar-tittel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
     .sidebar-tittel h1 { font-size: 1.7rem; margin: 0; line-height: 1.1; }
-    .sidebar-tittel p  { display: none; }
+    .sidebar-tittel p  { display: block; font-size: 0.65rem; margin: 0.2rem 0 0; opacity: 0.55; }
     .sidebar-progresjon {
       flex: 1; min-width: 0;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
       text-align: right;
+      justify-content: space-between;
+      padding: 0.1rem 0;
     }
     .sidebar-progresjon .label-small { font-size: 0.65rem; }
     .sidebar-progresjon .stat-value  { font-size: 1rem; }
@@ -283,22 +355,26 @@
     .sidebar .btn-danger,
     .sidebar .sidebar-bunn { display: none; }
     .quiz-area { order: 2; padding: 1rem; padding-bottom: 180px; max-width: 100%; }
-    .mobil-footer {
+    .burger-btn {
       display: flex;
       flex-direction: column;
-      order: 3;
-      background: var(--forest);
-      padding: 1.5rem;
-      padding-bottom: calc(1.5rem + 180px);
-      gap: 1rem;
+      justify-content: center;
+      gap: 5px;
+      width: 36px;
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      align-self: center;
     }
-    .mobil-footer-bunn {
-      font-size: 0.75rem;
-      color: rgba(238,232,218,0.45);
-      line-height: 1.6;
+    .burger-btn span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: rgba(238,232,218,0.7);
+      border-radius: 1px;
     }
-    .mobil-footer-bunn a { color: rgba(238,232,218,0.55); text-decoration: none; }
-    .mobil-footer-bunn a:hover { color: rgba(238,232,218,0.8); }
     .aksjon-panel {
       display: block;
       position: fixed;
@@ -333,6 +409,10 @@
     </div>
     <div style="font-size:0.8rem;color:#8A9E7A;margin-top:0.3rem" id="prosent-tekst">–</div>
   </div>
+
+  <button class="burger-btn" onclick="toggleBurger()" aria-label="Meny">
+    <span></span><span></span><span></span>
+  </button>
 
   <hr class="divider">
 
@@ -388,14 +468,28 @@
   </div>
 </main>
 
-<div class="mobil-footer">
-  <button class="btn btn-danger" onclick="visResetModal()">Nullstill fremgang</button>
-  <div class="mobil-footer-bunn">
-    Informasjon hentet fra<br>
-    <a href="https://www.artsdatabanken.no" target="_blank" rel="noopener">Artsdatabanken</a> og <a href="https://www.birdlife.no" target="_blank" rel="noopener">BirdLife Norge</a><br><br>
-    Et lite prosjekt av:<br>
-    Hallvar Bugge Johnsen<br>
-    <a href="mailto:hei@hallvar.no">hei@hallvar.no</a> · <a href="https://www.hallvar.no" target="_blank" rel="noopener">hallvar.no</a>
+<div class="burger-drawer" id="burger-drawer">
+  <div class="burger-overlay" onclick="toggleBurger()"></div>
+  <div class="burger-panel">
+    <button class="burger-lukk" onclick="toggleBurger()" aria-label="Lukk">&#x2715;</button>
+    <div>
+      <div class="burger-panel-tittel">Pippipp,<br>Gakkgakk & Ørn</div>
+      <div class="burger-panel-sub">Norsk fuglequiz · 228 hekkefugler</div>
+    </div>
+    <hr class="burger-divider">
+    <div class="burger-panel-seksjon">
+      Informasjon hentet fra<br>
+      <a href="https://www.artsdatabanken.no" target="_blank" rel="noopener">Artsdatabanken</a> og
+      <a href="https://www.birdlife.no" target="_blank" rel="noopener">BirdLife Norge</a>
+    </div>
+    <div class="burger-panel-seksjon">
+      Et lite prosjekt av:<br>
+      Hallvar Bugge Johnsen<br>
+      <a href="mailto:hei@hallvar.no">hei@hallvar.no</a> ·
+      <a href="https://www.hallvar.no" target="_blank" rel="noopener">hallvar.no</a>
+    </div>
+    <hr class="burger-divider">
+    <button class="btn btn-danger" onclick="lukkBurger(); visResetModal();">Nullstill fremgang</button>
   </div>
 </div>
 
@@ -973,6 +1067,13 @@ function nullstill() {
 
 function visResetModal()  { document.getElementById('reset-modal').style.display = 'flex'; }
 function skjulResetModal(){ document.getElementById('reset-modal').style.display = 'none'; }
+
+function toggleBurger() {
+  document.getElementById('burger-drawer').classList.toggle('open');
+}
+function lukkBurger() {
+  document.getElementById('burger-drawer').classList.remove('open');
+}
 
 // ─── KONFETTI ─────────────────────────────────────────────────
 function feirRiktig() {
