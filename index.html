@@ -256,26 +256,38 @@
     .sidebar {
       width: 100%; min-height: auto; height: auto;
       position: static;
-      order: 2;
-      padding: 1.5rem;
+      order: 1;
+      padding: 0.75rem 1rem;
+      flex-direction: row;
+      align-items: center;
+      gap: 1rem;
     }
-    .quiz-area { order: 1; padding: 1rem; max-width: 100%; }
-    .sidebar h1 { font-size: 1.5rem; }
+    .sidebar-tittel h1 { font-size: 1rem; margin: 0 0 0.15rem; }
+    .sidebar-tittel p  { margin: 0; font-size: 0.72rem; }
+    .sidebar-progresjon { flex: 1; min-width: 0; }
+    .sidebar .divider,
+    .sidebar .btn-danger,
+    .sidebar .sidebar-bunn { display: none; }
+    .quiz-area { order: 2; padding: 1rem; max-width: 100%; }
   }
 </style>
 </head>
 <body class="flex">
 
 <aside class="sidebar">
-  <h1>Pippipp,<br>Gakkgakk<br><nobr>& Ørn</nobr></h1>
-  <p>Norsk fuglequiz</p>
-
-  <div class="stat-value" id="progresjon-tekst">–</div>
-  <div class="progress-bar-bg" style="margin-top:0.6rem">
-    <div class="progress-bar-fill" id="progresjon-bar" style="width:0%"></div>
+  <div class="sidebar-tittel">
+    <h1>Pippipp,<br>Gakkgakk<br><nobr>& Ørn</nobr></h1>
+    <p>Norsk fuglequiz</p>
   </div>
-  <div style="font-size:0.8rem;color:#8A9E7A;margin-top:0.3rem" id="prosent-tekst">–</div>
 
+  <div class="sidebar-progresjon">
+    <span class="label-small">Fremgang</span>
+    <div class="stat-value" id="progresjon-tekst">–</div>
+    <div class="progress-bar-bg" style="margin-top:0.4rem">
+      <div class="progress-bar-fill" id="progresjon-bar" style="width:0%"></div>
+    </div>
+    <div style="font-size:0.8rem;color:#8A9E7A;margin-top:0.3rem" id="prosent-tekst">–</div>
+  </div>
 
   <hr class="divider">
 
@@ -769,7 +781,7 @@ function render() {
   const tot = FUGLER.length;
   const ant = state.mestra.size;
   const pst = Math.round((ant / tot) * 100);
-  document.getElementById('progresjon-tekst').textContent = `Du husker ${ant} av ${tot} fugler`;
+  document.getElementById('progresjon-tekst').textContent = `${ant} av ${tot} fugler`;
   document.getElementById('progresjon-bar').style.width   = pst + '%';
   document.getElementById('prosent-tekst').textContent    = `${ant} fugler lært`;
 }
