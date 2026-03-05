@@ -136,8 +136,14 @@
 
   .knapper {
     display: grid;
-    grid-template-columns: 1fr 52px 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
+  }
+  .hint-knapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
   }
 
   .btn {
@@ -487,11 +493,13 @@
 
       <div class="knapper">
         <button class="btn btn-primary" onclick="sjekkSvar()">Sjekk svar</button>
-        <button class="btn btn-secondary" id="hint-btn" onclick="visHint()">Hint</button>
         <button class="btn btn-secondary" onclick="giOpp()">Vet ikke</button>
       </div>
-      <button class="btn btn-secondary" id="vis-fugl-btn" onclick="visFuglBilde()" style="width:100%;margin-top:8px">Vis fugl</button>
-      <button class="btn btn-secondary" id="hør-lyd-btn" onclick="toggleLyd()" style="display:none;width:100%;margin-top:8px">Hør lyd</button>
+      <div class="hint-knapper">
+        <button class="btn btn-secondary" id="hint-btn" onclick="visHint()">Hint ord</button>
+        <button class="btn btn-secondary" id="vis-fugl-btn" onclick="visFuglBilde()">Hint bilde</button>
+        <button class="btn btn-secondary" id="hør-lyd-btn" onclick="toggleLyd()">Hint lyd</button>
+      </div>
       <button class="btn btn-primary" id="ny-fugl-btn" onclick="nyFugl()" style="display:none;width:100%;margin-top:8px">
         Neste fugl →
       </button>
@@ -505,7 +513,7 @@
     <button class="burger-lukk" onclick="toggleBurger()" aria-label="Lukk">&#x2715;</button>
     <div>
       <div class="burger-panel-tittel">Pippipp,<br>Gakkgakk & Ørn</div>
-      <div class="burger-panel-sub">Norsk fuglequiz · 228 hekkefugler</div>
+      <div class="burger-panel-sub">Norsk fuglequiz</div>
     </div>
     <hr class="burger-divider">
     <div class="burger-panel-seksjon">
@@ -1113,22 +1121,18 @@ function render() {
   visFuglBtn.style.cursor  = visFuglBrukt ? 'not-allowed' : '';
 
   const hørLydBtn = document.getElementById('hør-lyd-btn');
-  const visLyd = state.visBilde || state.feedback?.type === 'riktig';
-  hørLydBtn.style.display = visLyd ? 'block' : 'none';
-  if (visLyd) {
-    if (state.lydLastes) {
-      hørLydBtn.textContent = 'Laster lyd…';
-      hørLydBtn.disabled = true;
-      hørLydBtn.style.opacity = '0.5';
-    } else if (state.lydSpiller) {
-      hørLydBtn.textContent = '⏹ Stopp lyd';
-      hørLydBtn.disabled = false;
-      hørLydBtn.style.opacity = '1';
-    } else {
-      hørLydBtn.textContent = 'Hør lyd';
-      hørLydBtn.disabled = false;
-      hørLydBtn.style.opacity = '1';
-    }
+  if (state.lydLastes) {
+    hørLydBtn.textContent = 'Laster…';
+    hørLydBtn.disabled = true;
+    hørLydBtn.style.opacity = '0.5';
+  } else if (state.lydSpiller) {
+    hørLydBtn.textContent = '⏹ Stopp';
+    hørLydBtn.disabled = false;
+    hørLydBtn.style.opacity = '1';
+  } else {
+    hørLydBtn.textContent = 'Hint lyd';
+    hørLydBtn.disabled = false;
+    hørLydBtn.style.opacity = '1';
   }
 
   const inp = document.getElementById('svar-input');
