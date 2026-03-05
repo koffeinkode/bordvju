@@ -136,8 +136,14 @@
 
   .knapper {
     display: grid;
-    grid-template-columns: 1fr 52px 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
+  }
+  .hint-knapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
   }
 
   .btn {
@@ -176,6 +182,32 @@
     border-color: rgba(238,232,218,0.6);
     background: rgba(255,255,255,0.08);
   }
+  .btn-ghost {
+    background: transparent;
+    color: rgba(238,232,218,0.75);
+    border: 1px solid rgba(238,232,218,0.3);
+    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+  }
+  .btn-ghost:hover {
+    color: #EEE8DA;
+    border-color: rgba(238,232,218,0.6);
+    background: rgba(255,255,255,0.08);
+  }
+  .kode-boks {
+    font-family: monospace;
+    font-size: 0.85rem;
+    background: #F0EDE5;
+    padding: 1rem;
+    border-radius: 8px;
+    word-break: break-all;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .kode-boks:hover { border-color: var(--forest); }
 
   .modal-overlay {
     position: fixed; inset: 0;
@@ -224,6 +256,7 @@
     border-radius: 8px;
     display: block;
     box-shadow: 0 2px 12px rgba(42,31,14,0.12);
+    object-fit: contain;
   }
   .bilde-laster-msg {
     width: 100%;
@@ -323,7 +356,7 @@
   .aksjon-panel { display: contents; }
 
   @media (max-width: 768px) {
-    body { flex-direction: column !important; }
+    body { flex-direction: column !important; height: 100dvh; overflow: hidden; }
     .sidebar {
       width: 100%; min-height: auto; height: auto;
       position: static;
@@ -339,7 +372,7 @@
       justify-content: center;
     }
     .sidebar-tittel h1 { font-size: 1.7rem; margin: 0; line-height: 1.1; }
-    .sidebar-tittel p  { display: block; font-size: 0.85rem; margin: 0.25rem 0 0; opacity: 0.65; }
+    .sidebar-tittel p  { display: block; font-size: 1rem; margin: 0.2rem 0 0; opacity: 0.8; }
     .sidebar-hoyre {
       display: flex;
       flex-direction: row;
@@ -354,12 +387,16 @@
       text-align: right;
       gap: 0.1rem;
     }
-    .sidebar-progresjon .label-small { font-size: 0.8rem; font-weight: 700; text-transform: none; letter-spacing: 0; }
-    .sidebar-progresjon .stat-value  { font-size: 1.1rem; }
+    .sidebar-progresjon .label-small { font-size: 1rem; font-weight: 700; text-transform: none; letter-spacing: 0; }
+    .sidebar-progresjon .stat-value  { font-size: 2rem; }
     .sidebar .divider,
     .sidebar .btn-danger,
     .sidebar .sidebar-bunn { display: none; }
-    .quiz-area { order: 2; padding: 1rem; padding-bottom: 180px; max-width: 100%; }
+    .quiz-area { order: 2; flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 1rem; max-width: 100%; }
+    .quiz-area > .card { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: visible; padding: 1.25rem; }
+    #bilde-omrade { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 0.5rem; }
+    #feedback-omrade { flex-shrink: 0; }
+    .fugl-bilde { flex: 1; min-height: 0; object-fit: contain; width: 100%; max-height: none; background: #F0EDE5; }
     .burger-btn {
       display: flex;
       flex-direction: column;
@@ -381,14 +418,11 @@
     }
     .aksjon-panel {
       display: block;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      position: static;
+      margin-top: auto;
+      flex-shrink: 0;
       background: var(--cream);
-      padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
-      box-shadow: 0 -2px 16px rgba(42,31,14,0.12);
-      z-index: 50;
+      padding: 0.75rem 0 calc(0.5rem + env(safe-area-inset-bottom, 0px));
     }
     .aksjon-panel .svar-input { margin-bottom: 0.5rem; }
     .aksjon-panel .knapper { margin-top: 0.4rem; }
@@ -459,10 +493,13 @@
 
       <div class="knapper">
         <button class="btn btn-primary" onclick="sjekkSvar()">Sjekk svar</button>
-        <button class="btn btn-secondary" id="hint-btn" onclick="visHint()">Hint</button>
         <button class="btn btn-secondary" onclick="giOpp()">Vet ikke</button>
       </div>
-      <button class="btn btn-secondary" id="vis-fugl-btn" onclick="visFuglBilde()" style="width:100%;margin-top:8px">Vis fugl</button>
+      <div class="hint-knapper">
+        <button class="btn btn-secondary" id="hint-btn" onclick="visHint()">Hint ord</button>
+        <button class="btn btn-secondary" id="vis-fugl-btn" onclick="visFuglBilde()">Hint bilde</button>
+        <button class="btn btn-secondary" id="hør-lyd-btn" onclick="toggleLyd()">Hint lyd</button>
+      </div>
       <button class="btn btn-primary" id="ny-fugl-btn" onclick="nyFugl()" style="display:none;width:100%;margin-top:8px">
         Neste fugl →
       </button>
@@ -476,7 +513,7 @@
     <button class="burger-lukk" onclick="toggleBurger()" aria-label="Lukk">&#x2715;</button>
     <div>
       <div class="burger-panel-tittel">Pippipp,<br>Gakkgakk & Ørn</div>
-      <div class="burger-panel-sub">Norsk fuglequiz · 228 hekkefugler</div>
+      <div class="burger-panel-sub">Norsk fuglequiz</div>
     </div>
     <hr class="burger-divider">
     <div class="burger-panel-seksjon">
@@ -491,11 +528,44 @@
       <a href="https://www.hallvar.no" target="_blank" rel="noopener">hallvar.no</a>
     </div>
     <hr class="burger-divider">
+    <button class="btn btn-ghost" onclick="lukkBurger(); visLagreKodeModal()">Lagre fremgang som kode</button>
+    <button class="btn btn-ghost" onclick="lukkBurger(); visGjenopprettModal()">Gjenopprett fra kode</button>
+    <hr class="burger-divider">
     <button class="btn btn-danger" onclick="lukkBurger(); visResetModal();">Nullstill fremgang</button>
   </div>
 </div>
 
+<audio id="fugl-audio"></audio>
+
 <canvas id="gås-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:999;top:0;left:0;width:100%;height:100%"></canvas>
+
+<!-- Lagre kode modal -->
+<div class="modal-overlay" id="lagre-kode-modal" style="display:none">
+  <div class="modal-box">
+    <h2>Din fremgangskode</h2>
+    <p>Trykk på koden for å kopiere den. Ta vare på den — bruk den til å gjenopprette fremgangen på en ny enhet.</p>
+    <div class="kode-boks" id="kode-visning" onclick="kopierKode()" title="Trykk for å kopiere"></div>
+    <p id="kopi-bekreftelse" style="display:none;color:var(--success);font-size:0.9rem;margin:-0.5rem 0 0.75rem">Kopiert!</p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="kopierKode()">Kopier</button>
+      <button class="btn btn-secondary" onclick="skjulLagreKodeModal()">Lukk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Gjenopprett modal -->
+<div class="modal-overlay" id="gjenopprett-modal" style="display:none">
+  <div class="modal-box">
+    <h2>Gjenopprett fremgang</h2>
+    <p>Lim inn fremgangskoden din her.</p>
+    <textarea id="kode-input" style="width:100%;font-family:monospace;font-size:0.85rem;padding:0.75rem;border:2px solid #C8BFA8;border-radius:8px;height:90px;resize:none;margin-bottom:0.75rem;outline:none;" placeholder="Lim inn kode her…"></textarea>
+    <p id="kode-feil" style="display:none;color:var(--danger);font-size:0.85rem;margin:-0.25rem 0 0.75rem">Ugyldig kode. Prøv igjen.</p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="gjenopprettFraKode()">Gjenopprett</button>
+      <button class="btn btn-secondary" onclick="skjulGjenopprettModal()">Avbryt</button>
+    </div>
+  </div>
+</div>
 
 <!-- Reset modal -->
 <div class="modal-overlay" id="reset-modal" style="display:none">
@@ -755,6 +825,8 @@ const state = {
   bildeUrl: null,
   bildeAttribution: null,
   bildeLastes: false,
+  lydLastes: false,
+  lydSpiller: false,
 };
 
 // ─── ALGORITMER ──────────────────────────────────────────────
@@ -796,6 +868,113 @@ function velgNeste() {
 function lagreTilLocalStorage() {
   localStorage.setItem('bv-mestra', JSON.stringify([...state.mestra]));
   localStorage.setItem('bv-feilkø', JSON.stringify(state.feilKø));
+}
+
+// ─── LYD ─────────────────────────────────────────────────────
+const lydCache = {};
+let aktivAudio = null;
+
+async function hentLyd(fugl) {
+  const nøkkel = fugl.latin;
+  if (nøkkel in lydCache) return lydCache[nøkkel];
+  try {
+    const r = await fetch(
+      `https://xeno-canto.org/api/2/recordings?query=${encodeURIComponent(fugl.latin + ' q_gt:D')}`
+    );
+    if (!r.ok) { lydCache[nøkkel] = null; return null; }
+    const d = await r.json();
+    if (!d.recordings?.length) { lydCache[nøkkel] = null; return null; }
+    const rec = d.recordings[0];
+    const url = rec.file.startsWith('//') ? 'https:' + rec.file : rec.file;
+    lydCache[nøkkel] = { url, kreditering: rec.rec };
+    return lydCache[nøkkel];
+  } catch { lydCache[nøkkel] = null; return null; }
+}
+
+async function toggleLyd() {
+  if (aktivAudio && !aktivAudio.paused) {
+    aktivAudio.pause();
+    aktivAudio.currentTime = 0;
+    state.lydSpiller = false;
+    render();
+    return;
+  }
+  const fuglVedKlikk = state.aktivFugl;
+  state.lydLastes = true;
+  render();
+  const resultat = await hentLyd(fuglVedKlikk);
+  if (state.aktivFugl !== fuglVedKlikk) return;
+  state.lydLastes = false;
+  if (!resultat) { render(); return; }
+  aktivAudio = new Audio(resultat.url);
+  aktivAudio.onended = () => { state.lydSpiller = false; render(); };
+  aktivAudio.onerror = () => { state.lydSpiller = false; render(); };
+  state.lydSpiller = true;
+  render();
+  aktivAudio.play().catch(() => { state.lydSpiller = false; render(); });
+}
+
+// ─── FREMGANGSKODE ───────────────────────────────────────────
+function lagKode() {
+  const bytes = new Uint8Array(29);
+  for (const id of state.mestra) {
+    const i = id - 1;
+    bytes[Math.floor(i / 8)] |= 1 << (i % 8);
+  }
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function lastKode(kode) {
+  try {
+    const b64 = kode.trim().replace(/-/g, '+').replace(/_/g, '/');
+    const str = atob(b64);
+    if (str.length !== 29) return false;
+    const bytes = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) bytes[i] = str.charCodeAt(i);
+    const mestra = new Set();
+    for (let i = 0; i < 228; i++) {
+      if (bytes[Math.floor(i / 8)] & (1 << (i % 8))) mestra.add(i + 1);
+    }
+    state.mestra  = mestra;
+    state.feilKø  = [];
+    lagreTilLocalStorage();
+    render();
+    return true;
+  } catch { return false; }
+}
+
+function visLagreKodeModal() {
+  document.getElementById('kode-visning').textContent = lagKode();
+  document.getElementById('kopi-bekreftelse').style.display = 'none';
+  document.getElementById('lagre-kode-modal').style.display = 'flex';
+}
+function skjulLagreKodeModal() {
+  document.getElementById('lagre-kode-modal').style.display = 'none';
+}
+function kopierKode() {
+  const kode = document.getElementById('kode-visning').textContent;
+  navigator.clipboard.writeText(kode).then(() => {
+    const el = document.getElementById('kopi-bekreftelse');
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 2000);
+  });
+}
+function visGjenopprettModal() {
+  document.getElementById('kode-input').value = '';
+  document.getElementById('kode-feil').style.display = 'none';
+  document.getElementById('gjenopprett-modal').style.display = 'flex';
+}
+function skjulGjenopprettModal() {
+  document.getElementById('gjenopprett-modal').style.display = 'none';
+}
+function gjenopprettFraKode() {
+  const kode = document.getElementById('kode-input').value;
+  if (lastKode(kode)) {
+    skjulGjenopprettModal();
+  } else {
+    document.getElementById('kode-feil').style.display = 'block';
+  }
 }
 
 // ─── BILDER ──────────────────────────────────────────────────
@@ -941,6 +1120,21 @@ function render() {
   visFuglBtn.style.opacity = visFuglBrukt ? '0.4' : '1';
   visFuglBtn.style.cursor  = visFuglBrukt ? 'not-allowed' : '';
 
+  const hørLydBtn = document.getElementById('hør-lyd-btn');
+  if (state.lydLastes) {
+    hørLydBtn.textContent = 'Laster…';
+    hørLydBtn.disabled = true;
+    hørLydBtn.style.opacity = '0.5';
+  } else if (state.lydSpiller) {
+    hørLydBtn.textContent = '⏹ Stopp';
+    hørLydBtn.disabled = false;
+    hørLydBtn.style.opacity = '1';
+  } else {
+    hørLydBtn.textContent = 'Hint lyd';
+    hørLydBtn.disabled = false;
+    hørLydBtn.style.opacity = '1';
+  }
+
   const inp = document.getElementById('svar-input');
   inp.disabled = !!state.feedback;
 
@@ -1032,6 +1226,7 @@ function visHint() {
 }
 
 function nyFugl() {
+  if (aktivAudio) { aktivAudio.pause(); aktivAudio.currentTime = 0; aktivAudio = null; }
   if (state.aktivFugl)
     state.historikk = [...state.historikk, state.aktivFugl.id].slice(-10);
   state.aktivFugl        = velgNeste();
@@ -1042,9 +1237,12 @@ function nyFugl() {
   state.bildeUrl         = null;
   state.bildeAttribution = null;
   state.bildeLastes      = false;
+  state.lydLastes        = false;
+  state.lydSpiller       = false;
   document.getElementById('svar-input').value = '';
   render();
   if (window.innerWidth <= 768) window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => { hentBilde(state.aktivFugl); hentLyd(state.aktivFugl); }, 800);
 }
 
 function nullstill() {
@@ -1058,6 +1256,9 @@ function nullstill() {
   state.bildeUrl         = null;
   state.bildeAttribution = null;
   state.bildeLastes      = false;
+  state.lydLastes        = false;
+  state.lydSpiller       = false;
+  if (aktivAudio) { aktivAudio.pause(); aktivAudio = null; }
   state.aktivFugl        = velgNeste();
   document.getElementById('svar-input').value = '';
   skjulResetModal();
